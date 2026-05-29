@@ -1,0 +1,55 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <div class="header-info">
+      <h1>Triagem de Camas</h1>
+      <span class="user-info">{{ auth.user()?.nome_completo }} · {{ auth.user()?.tipo_utilizador | titlecase }}</span>
+    </div>
+    <button class="btn-logout" (click)="auth.logout()">Sair</button>
+  </header>
+
+  <main class="dashboard-main">
+    <h2>Dashboard</h2>
+
+    <div class="stats-grid">
+      <div class="stat-card stat-livre">
+        <span class="stat-value">{{ camasLivresLimpas }}</span>
+        <span class="stat-label">Camas Livres e Limpas</span>
+      </div>
+      <div class="stat-card stat-ocupada">
+        <span class="stat-value">{{ camasOcupadas }}</span>
+        <span class="stat-label">Camas Ocupadas</span>
+      </div>
+      <div class="stat-card stat-limpeza">
+        <span class="stat-value">{{ camasParaLimpar }}</span>
+        <span class="stat-label">Camas para Limpar</span>
+      </div>
+      <div class="stat-card stat-internamento">
+        <span class="stat-value">{{ internamentosAtivos().length }}</span>
+        <span class="stat-label">Internamentos Ativos</span>
+      </div>
+    </div>
+
+    <div class="nav-cards">
+      @if (auth.role() === 'enfermeiro_gestor' || auth.role() === 'admin') {
+        <a routerLink="/internamentos" class="nav-card">
+          <span class="nav-card-icon">🛏️</span>
+          <span>Gerir Internamentos</span>
+        </a>
+        <a routerLink="/doentes" class="nav-card">
+          <span class="nav-card-icon">👤</span>
+          <span>Gerir Doentes</span>
+        </a>
+      }
+      <a routerLink="/camas" class="nav-card">
+        <span class="nav-card-icon">📋</span>
+        <span>Estado das Camas</span>
+      </a>
+      @if (auth.role() === 'admin') {
+        <a routerLink="/utilizadores" class="nav-card">
+          <span class="nav-card-icon">⚙️</span>
+          <span>Utilizadores</span>
+        </a>
+      }
+    </div>
+  </main>
+</div>

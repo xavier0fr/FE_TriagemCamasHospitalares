@@ -1,0 +1,78 @@
+<div class="page">
+  <div class="page-header">
+    <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+    <div class="header-row">
+      <h1>Internamentos Ativos</h1>
+      <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Internamento</button>
+    </div>
+  </div>
+
+  @if (mostrarFormulario()) {
+    <div class="modal-overlay" (click)="mostrarFormulario.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Novo Internamento</h2>
+        <form (ngSubmit)="submeter()" #f="ngForm">
+          <div class="form-group">
+            <label>Doente</label>
+            <select [(ngModel)]="form.doente" name="doente" required>
+              <option value="">Selecionar doente...</option>
+              @for (d of doentes(); track d._id) {
+                <option [value]="d._id">{{ d.nome_completo }} ({{ d.numero_sns }})</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cama (Livre e Limpa)</label>
+            <select [(ngModel)]="form.cama" name="cama" required>
+              <option value="">Selecionar cama...</option>
+              @for (c of camasDisponiveis(); track c._id) {
+                <option [value]="c._id">{{ c.codigo_cama }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Motivo de Internamento</label>
+            <textarea [(ngModel)]="form.motivo_internamento" name="motivo" required rows="3"></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!f.valid">Internar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">A carregar...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Doente</th>
+            <th>Cama</th>
+            <th>Motivo</th>
+            <th>Entrada</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (i of internamentos(); track i._id) {
+            <tr>
+              <td>{{ nomeDoente(i) }}</td>
+              <td>{{ codigoCama(i) }}</td>
+              <td>{{ i.motivo_internamento }}</td>
+              <td>{{ i.data_hora_entrada | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <button class="btn-alta" (click)="darAlta(i._id)">Dar Alta</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty">Sem internamentos ativos.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

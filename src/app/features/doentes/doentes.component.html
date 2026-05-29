@@ -1,0 +1,68 @@
+<div class="page">
+  <div class="page-header">
+    <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+    <div class="header-row">
+      <h1>Doentes</h1>
+      <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Doente</button>
+    </div>
+  </div>
+
+  @if (mostrarFormulario()) {
+    <div class="modal-overlay" (click)="mostrarFormulario.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Registar Doente</h2>
+        <form (ngSubmit)="submeter()" #f="ngForm">
+          <div class="form-group">
+            <label>N.º SNS</label>
+            <input type="text" [(ngModel)]="form.numero_sns" name="sns" required placeholder="000000000" />
+          </div>
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" [(ngModel)]="form.nome_completo" name="nome" required />
+          </div>
+          <div class="form-group">
+            <label>Data de Nascimento</label>
+            <input type="date" [(ngModel)]="form.data_nascimento" name="nascimento" required />
+          </div>
+          <div class="form-group">
+            <label>Contacto de Emergência</label>
+            <input type="text" [(ngModel)]="form.contacto_emergencia" name="contacto" required placeholder="+351 912 345 678" />
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!f.valid">Registar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">A carregar...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>N.º SNS</th>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>Contacto Emergência</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of doentes(); track d._id) {
+            <tr>
+              <td>{{ d.numero_sns }}</td>
+              <td>{{ d.nome_completo }}</td>
+              <td>{{ idade(d.data_nascimento) }} anos</td>
+              <td>{{ d.contacto_emergencia }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4" class="empty">Sem doentes registados.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
