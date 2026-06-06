@@ -1,10 +1,10 @@
 <div class="page">
   <div class="page-header">
-    <a routerLink="/dashboard" class="back-link">← Dashboard</a>
-    <div class="header-row">
+    <div class="page-title">
       <h1>Internamentos Ativos</h1>
-      <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Internamento</button>
+      <p>Gestão de internamentos e altas hospitalares</p>
     </div>
+    <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Internamento</button>
   </div>
 
   @if (mostrarFormulario()) {
@@ -44,9 +44,9 @@
   }
 
   @if (loading()) {
-    <div class="loading">A carregar...</div>
+    <div class="loading-state">A carregar internamentos...</div>
   } @else {
-    <div class="table-wrapper">
+    <div class="card">
       <table>
         <thead>
           <tr>
@@ -60,12 +60,12 @@
         <tbody>
           @for (i of internamentos(); track i._id) {
             <tr>
-              <td>{{ nomeDoente(i) }}</td>
+              <td><strong>{{ nomeDoente(i) }}</strong></td>
               <td>{{ codigoCama(i) }}</td>
               <td>{{ i.motivo_internamento }}</td>
               <td>{{ i.data_hora_entrada | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>
-                <button class="btn-alta" (click)="darAlta(i._id)">Dar Alta</button>
+                <button class="btn-danger" (click)="darAlta(i._id)">Dar Alta</button>
               </td>
             </tr>
           } @empty {

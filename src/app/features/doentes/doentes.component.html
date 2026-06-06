@@ -1,10 +1,10 @@
 <div class="page">
   <div class="page-header">
-    <a routerLink="/dashboard" class="back-link">← Dashboard</a>
-    <div class="header-row">
+    <div class="page-title">
       <h1>Doentes</h1>
-      <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Doente</button>
+      <p>Registo e gestão de doentes hospitalizados</p>
     </div>
+    <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Doente</button>
   </div>
 
   @if (mostrarFormulario()) {
@@ -14,19 +14,19 @@
         <form (ngSubmit)="submeter()" #f="ngForm">
           <div class="form-group">
             <label>N.º SNS</label>
-            <input type="text" [(ngModel)]="form.numero_sns" name="sns" required placeholder="000000000" />
+            <input type="text" [(ngModel)]="form.numero_sns" name="sns" required placeholder="000000000"/>
           </div>
           <div class="form-group">
             <label>Nome Completo</label>
-            <input type="text" [(ngModel)]="form.nome_completo" name="nome" required />
+            <input type="text" [(ngModel)]="form.nome_completo" name="nome" required/>
           </div>
           <div class="form-group">
             <label>Data de Nascimento</label>
-            <input type="date" [(ngModel)]="form.data_nascimento" name="nascimento" required />
+            <input type="date" [(ngModel)]="form.data_nascimento" name="nascimento" required/>
           </div>
           <div class="form-group">
             <label>Contacto de Emergência</label>
-            <input type="text" [(ngModel)]="form.contacto_emergencia" name="contacto" required placeholder="+351 912 345 678" />
+            <input type="text" [(ngModel)]="form.contacto_emergencia" name="contacto" required placeholder="+351 912 345 678"/>
           </div>
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
@@ -38,9 +38,9 @@
   }
 
   @if (loading()) {
-    <div class="loading">A carregar...</div>
+    <div class="loading-state">A carregar doentes...</div>
   } @else {
-    <div class="table-wrapper">
+    <div class="card">
       <table>
         <thead>
           <tr>
@@ -53,8 +53,8 @@
         <tbody>
           @for (d of doentes(); track d._id) {
             <tr>
-              <td>{{ d.numero_sns }}</td>
-              <td>{{ d.nome_completo }}</td>
+              <td><span class="sns-badge">{{ d.numero_sns }}</span></td>
+              <td><strong>{{ d.nome_completo }}</strong></td>
               <td>{{ idade(d.data_nascimento) }} anos</td>
               <td>{{ d.contacto_emergencia }}</td>
             </tr>

@@ -1,55 +1,115 @@
-<div class="dashboard">
-  <header class="dashboard-header">
-    <div class="header-info">
-      <h1>Triagem de Camas</h1>
-      <span class="user-info">{{ auth.user()?.nome_completo }} · {{ auth.user()?.tipo_utilizador | titlecase }}</span>
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Dashboard</h1>
+      <p>Visão geral do estado hospitalar em tempo real</p>
     </div>
-    <button class="btn-logout" (click)="auth.logout()">Sair</button>
-  </header>
+  </div>
 
-  <main class="dashboard-main">
-    <h2>Dashboard</h2>
-
-    <div class="stats-grid">
-      <div class="stat-card stat-livre">
-        <span class="stat-value">{{ camasLivresLimpas }}</span>
-        <span class="stat-label">Camas Livres e Limpas</span>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon stat-green">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
       </div>
-      <div class="stat-card stat-ocupada">
-        <span class="stat-value">{{ camasOcupadas }}</span>
-        <span class="stat-label">Camas Ocupadas</span>
-      </div>
-      <div class="stat-card stat-limpeza">
-        <span class="stat-value">{{ camasParaLimpar }}</span>
-        <span class="stat-label">Camas para Limpar</span>
-      </div>
-      <div class="stat-card stat-internamento">
-        <span class="stat-value">{{ internamentosAtivos().length }}</span>
-        <span class="stat-label">Internamentos Ativos</span>
+      <div>
+        <p class="stat-value">{{ camasLivresLimpas }}</p>
+        <p class="stat-label">Camas Livres e Limpas</p>
       </div>
     </div>
 
-    <div class="nav-cards">
-      @if (auth.role() === 'enfermeiro_gestor' || auth.role() === 'admin') {
-        <a routerLink="/internamentos" class="nav-card">
-          <span class="nav-card-icon">🛏️</span>
-          <span>Gerir Internamentos</span>
-        </a>
-        <a routerLink="/doentes" class="nav-card">
-          <span class="nav-card-icon">👤</span>
-          <span>Gerir Doentes</span>
-        </a>
-      }
-      <a routerLink="/camas" class="nav-card">
-        <span class="nav-card-icon">📋</span>
-        <span>Estado das Camas</span>
+    <div class="stat-card">
+      <div class="stat-icon stat-red">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+        </svg>
+      </div>
+      <div>
+        <p class="stat-value">{{ camasOcupadas }}</p>
+        <p class="stat-label">Camas Ocupadas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-yellow">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="stat-value">{{ camasParaLimpar }}</p>
+        <p class="stat-label">Camas para Limpar</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-blue">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="stat-value">{{ internamentosAtivos().length }}</p>
+        <p class="stat-label">Internamentos Ativos</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="section-title">Acesso Rápido</p>
+  <div class="quick-cards">
+    @if (auth.role() === 'enfermeiro_gestor' || auth.role() === 'admin') {
+      <a routerLink="/internamentos" class="quick-card">
+        <div class="quick-icon qi-blue">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+          </svg>
+        </div>
+        <p class="quick-label">Internamentos</p>
+        <p class="quick-sub">{{ internamentosAtivos().length }} ativos</p>
       </a>
-      @if (auth.role() === 'admin') {
-        <a routerLink="/utilizadores" class="nav-card">
-          <span class="nav-card-icon">⚙️</span>
-          <span>Utilizadores</span>
-        </a>
-      }
-    </div>
-  </main>
+
+      <a routerLink="/doentes" class="quick-card">
+        <div class="quick-icon qi-purple">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+          </svg>
+        </div>
+        <p class="quick-label">Doentes</p>
+        <p class="quick-sub">Base de dados</p>
+      </a>
+    }
+
+    <a routerLink="/camas" class="quick-card">
+      <div class="quick-icon qi-teal">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/>
+        </svg>
+      </div>
+      <p class="quick-label">Estado das Camas</p>
+      <p class="quick-sub">{{ camasLivresLimpas }} disponíveis</p>
+    </a>
+
+    @if (auth.role() === 'admin') {
+      <a routerLink="/infraestrutura" class="quick-card quick-card--highlight">
+        <div class="quick-icon qi-indigo">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>
+          </svg>
+        </div>
+        <p class="quick-label">Gerir Hospital</p>
+        <p class="quick-sub">Andares, quartos e camas</p>
+      </a>
+
+      <a routerLink="/utilizadores" class="quick-card">
+        <div class="quick-icon qi-orange">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+          </svg>
+        </div>
+        <p class="quick-label">Utilizadores</p>
+        <p class="quick-sub">Gestão de acesso</p>
+      </a>
+    }
+  </div>
 </div>

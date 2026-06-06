@@ -1,15 +1,17 @@
 <div class="page">
   <div class="page-header">
-    <a routerLink="/dashboard" class="back-link">← Dashboard</a>
-    <h1>Estado das Camas</h1>
+    <div class="page-title">
+      <h1>Estado das Camas</h1>
+      <p>Monitorização e higienização das camas hospitalares</p>
+    </div>
   </div>
 
   @if (loading()) {
-    <div class="loading">A carregar...</div>
+    <div class="loading-state">A carregar camas...</div>
   } @else if (erro()) {
-    <div class="erro">{{ erro() }}</div>
+    <div class="loading-state" style="color:#dc2626">{{ erro() }}</div>
   } @else {
-    <div class="table-wrapper">
+    <div class="card">
       <table>
         <thead>
           <tr>
@@ -25,17 +27,23 @@
         <tbody>
           @for (cama of camas(); track cama._id) {
             <tr>
-              <td>{{ cama.codigo_cama }}</td>
+              <td><strong>{{ cama.codigo_cama }}</strong></td>
               <td><span class="badge" [class]="badgeOcupacao(cama.estado_ocupacao)">{{ cama.estado_ocupacao }}</span></td>
               <td><span class="badge" [class]="badgeLimpeza(cama.estado_limpeza)">{{ cama.estado_limpeza }}</span></td>
-              <td>{{ cama.quarto }}</td>
+              <td>{{ nomeQuarto(cama) }}</td>
               @if (auth.role() === 'auxiliar_limpeza' || auth.role() === 'admin') {
                 <td>
                   @if (cama.estado_limpeza === 'Suja') {
-                    <button class="btn-action" (click)="higienizar(cama._id)">Higienizar</button>
+                    <button class="btn-higienizar" (click)="higienizar(cama._id)">Higienizar</button>
                   }
                 </td>
               }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="auth.role() === 'auxiliar_limpeza' || auth.role() === 'admin' ? 5 : 4" class="empty">
+                Sem camas registadas.
+              </td>
             </tr>
           }
         </tbody>

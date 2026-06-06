@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CamaService } from '../../core/services/cama.service';
-import { Cama } from '../../core/models/cama.model';
+import { Cama, Quarto } from '../../core/models/cama.model';
 
 @Component({
   selector: 'app-camas',
@@ -42,5 +42,9 @@ export class CamasComponent implements OnInit {
     if (estado === 'Limpa') return 'badge-limpa';
     if (estado === 'Suja') return 'badge-suja';
     return 'badge-aguardar';
+  }
+
+  nomeQuarto(cama: Cama): string {
+    return typeof cama.quarto === 'object' ? (cama.quarto as Quarto).numero_quarto : String(cama.quarto);
   }
 }

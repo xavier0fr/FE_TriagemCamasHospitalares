@@ -1,115 +1,102 @@
-.dashboard {
-  min-height: 100vh;
-  background: #f0f4f8;
-}
-
-.dashboard-header {
-  background: #0066cc;
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  h1 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .user-info {
-    font-size: 0.85rem;
-    opacity: 0.85;
-    display: block;
-    margin-top: 0.2rem;
-  }
-}
-
-.btn-logout {
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.4);
-  color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-
-  &:hover { background: rgba(255,255,255,0.35); }
-}
-
-.dashboard-main {
-  padding: 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-
-  h2 {
-    font-size: 1.5rem;
-    color: #1a202c;
-    margin: 0 0 1.5rem;
-  }
-}
-
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .stat-card {
   background: white;
-  border-radius: 10px;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid #f1f5f9;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.stat-green  { background: #dcfce7; color: #16a34a; }
+  &.stat-red    { background: #fee2e2; color: #dc2626; }
+  &.stat-yellow { background: #fef9c3; color: #ca8a04; }
+  &.stat-blue   { background: #dbeafe; color: #2563eb; }
+}
+
+.stat-value {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 0.15rem;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.quick-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.quick-card {
+  background: white;
+  border-radius: 12px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  border-left: 4px solid;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-
-  &.stat-livre    { border-color: #38a169; }
-  &.stat-ocupada  { border-color: #e53e3e; }
-  &.stat-limpeza  { border-color: #d69e2e; }
-  &.stat-internamento { border-color: #3182ce; }
-
-  .stat-value {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1a202c;
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 0.875rem;
-    color: #718096;
-  }
-}
-
-.nav-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
-.nav-card {
-  background: white;
-  border-radius: 10px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: #1a202c;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid #f1f5f9;
   transition: transform 0.15s, box-shadow 0.15s;
-  text-align: center;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.1);
   }
+}
 
-  .nav-card-icon { font-size: 2rem; }
+.quick-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+
+  &.qi-blue   { background: #dbeafe; color: #2563eb; }
+  &.qi-purple { background: #ede9fe; color: #7c3aed; }
+  &.qi-teal   { background: #ccfbf1; color: #0d9488; }
+  &.qi-orange { background: #ffedd5; color: #ea580c; }
+  &.qi-indigo { background: #e0e7ff; color: #4338ca; }
+}
+
+.quick-label {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.quick-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0;
 }

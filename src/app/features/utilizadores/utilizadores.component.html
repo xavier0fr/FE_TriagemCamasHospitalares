@@ -1,0 +1,100 @@
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Utilizadores</h1>
+      <p>Gestão de contas e acessos ao sistema</p>
+    </div>
+    <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Registar Utilizador</button>
+  </div>
+
+  @if (mostrarFormulario()) {
+    <div class="modal-overlay" (click)="mostrarFormulario.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Registar Novo Utilizador</h2>
+        <form (ngSubmit)="submeter()" #f="ngForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome Completo</label>
+              <input type="text" [(ngModel)]="form.nome_completo" name="nome" required/>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="form.email" name="email" required placeholder="email@hospital.pt"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" [(ngModel)]="form.password_hash" name="password" required placeholder="••••••••"/>
+            </div>
+            <div class="form-group">
+              <label>Tipo de Utilizador</label>
+              <select [(ngModel)]="form.tipo_utilizador" name="tipo" required>
+                <option value="">Selecionar...</option>
+                <option value="enfermeiro_gestor">Enfermeiro Gestor</option>
+                <option value="auxiliar_limpeza">Auxiliar de Limpeza</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cédula Profissional</label>
+              <input type="text" [(ngModel)]="form.cedula_profissional" name="cedula" required placeholder="CP-000000"/>
+            </div>
+            <div class="form-group">
+              <label>Turno de Trabalho</label>
+              <select [(ngModel)]="form.turno_trabalho" name="turno" required>
+                <option value="">Selecionar...</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
+              </select>
+            </div>
+          </div>
+          @if (erro()) {
+            <div class="form-error-msg">{{ erro() }}</div>
+          }
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!f.valid">Registar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">A carregar utilizadores...</div>
+  } @else {
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Função</th>
+            <th>Cédula</th>
+            <th>Turno</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of utilizadores(); track u._id) {
+            <tr>
+              <td><strong>{{ u.nome_completo }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td>
+                <span class="role-badge" [class]="roleBadgeClass(u.tipo_utilizador)">
+                  {{ roleLabel(u.tipo_utilizador) }}
+                </span>
+              </td>
+              <td>{{ u.cedula_profissional }}</td>
+              <td>{{ u.turno_trabalho }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty">Sem utilizadores registados.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

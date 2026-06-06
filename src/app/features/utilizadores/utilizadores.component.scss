@@ -1,0 +1,27 @@
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.form-error-msg {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.role-admin { background: #ede9fe; color: #6d28d9; }
+  &.role-enf   { background: #dbeafe; color: #1d4ed8; }
+  &.role-aux   { background: #dcfce7; color: #15803d; }
+}

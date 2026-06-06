@@ -1,0 +1,146 @@
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Gerir Hospital</h1>
+      <p>Configuração de andares, quartos e camas</p>
+    </div>
+  </div>
+
+  <!-- ANDARES -->
+  <div class="section-header">
+    <div>
+      <p class="section-title" style="margin:0 0 0.2rem">Andares</p>
+      <span class="section-count">{{ andares().length }} piso(s) registado(s)</span>
+    </div>
+    <button class="btn-primary" (click)="mostrarFormAndar.set(true)">+ Adicionar Andar</button>
+  </div>
+
+  @if (mostrarFormAndar()) {
+    <div class="modal-overlay" (click)="mostrarFormAndar.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Novo Andar</h2>
+        <form (ngSubmit)="submeterAndar()" #fa="ngForm">
+          <div class="form-group">
+            <label>Número do Piso</label>
+            <input type="number" [(ngModel)]="formAndar.numero_piso" name="piso" required min="0" placeholder="0"/>
+          </div>
+          <div class="form-group">
+            <label>Nome da Ala</label>
+            <input type="text" [(ngModel)]="formAndar.nome_ala" name="ala" required placeholder="Ex: Ala Norte"/>
+          </div>
+          @if (erroAndar()) {
+            <div class="form-error-msg">{{ erroAndar() }}</div>
+          }
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="mostrarFormAndar.set(false)">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!fa.valid">Criar Andar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <div class="card" style="margin-bottom: 2.5rem">
+    <table>
+      <thead>
+        <tr>
+          <th>Piso</th>
+          <th>Nome da Ala</th>
+          <th>Quartos neste andar</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of andares(); track a._id) {
+          <tr>
+            <td><strong>Piso {{ a.numero_piso }}</strong></td>
+            <td>{{ a.nome_ala }}</td>
+            <td>{{ countQuartos(a._id) }} quarto(s)</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="3" class="empty">Sem andares. Adicione o primeiro andar para começar.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- QUARTOS -->
+  <div class="section-header">
+    <div>
+      <p class="section-title" style="margin:0 0 0.2rem">Quartos e Camas</p>
+      <span class="section-count">{{ quartos().length }} quarto(s) — camas geradas automaticamente</span>
+    </div>
+    <button class="btn-primary" [disabled]="andares().length === 0" (click)="mostrarFormQuarto.set(true)">
+      + Adicionar Quarto
+    </button>
+  </div>
+
+  @if (mostrarFormQuarto()) {
+    <div class="modal-overlay" (click)="mostrarFormQuarto.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Novo Quarto</h2>
+        <p class="modal-hint">As camas são geradas automaticamente com base na capacidade máxima.</p>
+        <form (ngSubmit)="submeterQuarto()" #fq="ngForm">
+          <div class="form-group">
+            <label>Andar</label>
+            <select [(ngModel)]="formQuarto.andar_id" name="andar" required>
+              <option value="">Selecionar andar...</option>
+              @for (a of andares(); track a._id) {
+                <option [value]="a._id">Piso {{ a.numero_piso }} — {{ a.nome_ala }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Número do Quarto</label>
+            <input type="text" [(ngModel)]="formQuarto.numero_quarto" name="numero" required placeholder="Ex: 101"/>
+          </div>
+          <div class="form-group">
+            <label>Tipo de Quarto</label>
+            <select [(ngModel)]="formQuarto.tipo_quarto" name="tipo" required>
+              <option value="">Selecionar tipo...</option>
+              <option value="Enfermaria">Enfermaria</option>
+              <option value="Individual">Individual</option>
+              <option value="Suite">Suíte</option>
+              <option value="UCI">UCI</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Capacidade Máxima (nº de camas)</label>
+            <input type="number" [(ngModel)]="formQuarto.capacidade_maxima" name="cap" required min="1" max="20"/>
+          </div>
+          @if (erroQuarto()) {
+            <div class="form-error-msg">{{ erroQuarto() }}</div>
+          }
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="mostrarFormQuarto.set(false)">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!fq.valid">Criar Quarto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Quarto</th>
+          <th>Andar</th>
+          <th>Tipo</th>
+          <th>Capacidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (q of quartos(); track q._id) {
+          <tr>
+            <td><strong>Quarto {{ q.numero_quarto }}</strong></td>
+            <td>{{ nomeAndar(q) }}</td>
+            <td>{{ q.tipo_quarto }}</td>
+            <td>{{ q.capacidade_maxima }} cama(s)</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="empty">Sem quartos. Adicione um andar primeiro e depois crie quartos.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

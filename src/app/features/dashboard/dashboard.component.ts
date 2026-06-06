@@ -1,5 +1,4 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CamaService } from '../../core/services/cama.service';
@@ -10,7 +9,7 @@ import { Internamento } from '../../core/models/internamento.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, TitleCasePipe],
+  imports: [RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
