@@ -2,51 +2,222 @@
   <div class="page-header">
     <div class="page-title">
       <h1>Gerir Hospital</h1>
-      <p>Configuração de andares, quartos e camas</p>
+      <p>Configuração de andares, quartos, camas e especialidades</p>
     </div>
   </div>
 
-  <!-- ANDARES -->
-  <div class="section-header">
-    <div>
-      <p class="section-title" style="margin:0 0 0.2rem">Andares</p>
-      <span class="section-count">{{ andares().length }} piso(s) registado(s)</span>
-    </div>
-    <button class="btn-primary" (click)="mostrarFormAndar.set(true)">+ Adicionar Andar</button>
-  </div>
-
-  @if (mostrarFormAndar()) {
-    <div class="modal-overlay" (click)="mostrarFormAndar.set(false)">
+  <!-- ====== MODAL GENÉRICO ====== -->
+  @if (modal()) {
+    <div class="modal-overlay" (click)="fecharModal()">
       <div class="modal" (click)="$event.stopPropagation()">
-        <h2>Novo Andar</h2>
-        <form (ngSubmit)="submeterAndar()" #fa="ngForm">
-          <div class="form-group">
-            <label>Número do Piso</label>
-            <input type="number" [(ngModel)]="formAndar.numero_piso" name="piso" required min="0" placeholder="0"/>
+
+        <!-- Criar Andar -->
+        @if (modal() === 'andar') {
+          <h2>Novo Andar</h2>
+          <form (ngSubmit)="submeterAndar()" #fa="ngForm">
+            <div class="form-group">
+              <label>Número do Piso</label>
+              <input type="number" [(ngModel)]="formAndar.numero_piso" name="piso" required min="0" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Nome da Ala</label>
+              <input type="text" [(ngModel)]="formAndar.nome_ala" name="ala" required placeholder="Ex: Ala Norte"/>
+            </div>
+            @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!fa.valid">Criar Andar</button>
+            </div>
+          </form>
+        }
+
+        <!-- Editar Andar -->
+        @if (modal() === 'editAndar') {
+          <h2>Editar Andar</h2>
+          <form (ngSubmit)="submeterEditAndar()" #fea="ngForm">
+            <div class="form-group">
+              <label>Número do Piso</label>
+              <input type="number" [(ngModel)]="editAndarForm.numero_piso" name="piso" required min="0"/>
+            </div>
+            <div class="form-group">
+              <label>Nome da Ala</label>
+              <input type="text" [(ngModel)]="editAndarForm.nome_ala" name="ala" required/>
+            </div>
+            @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!fea.valid">Guardar</button>
+            </div>
+          </form>
+        }
+
+        <!-- Criar Quarto -->
+        @if (modal() === 'quarto') {
+          <h2>Novo Quarto</h2>
+          <p class="modal-hint">As camas são geradas automaticamente com base na capacidade.</p>
+          <form (ngSubmit)="submeterQuarto()" #fq="ngForm">
+            <div class="form-group">
+              <label>Andar</label>
+              <select [(ngModel)]="formQuarto.andar_id" name="andar" required>
+                <option value="">Selecionar andar...</option>
+                @for (a of andares(); track a._id) {
+                  <option [value]="a._id">Piso {{ a.numero_piso }} — {{ a.nome_ala }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Número do Quarto</label>
+              <input type="text" [(ngModel)]="formQuarto.numero_quarto" name="numero" required placeholder="Ex: 101"/>
+            </div>
+            <div class="form-group">
+              <label>Tipo de Quarto</label>
+              <select [(ngModel)]="formQuarto.tipo_quarto" name="tipo" required>
+                <option value="">Selecionar tipo...</option>
+                <option value="Enfermaria">Enfermaria</option>
+                <option value="Individual">Individual</option>
+                <option value="Suite">Suíte</option>
+                <option value="UCI">UCI</option>
+                <option value="Isolamento">Isolamento</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Capacidade Máxima (nº de camas)</label>
+              <input type="number" [(ngModel)]="formQuarto.capacidade_maxima" name="cap" required min="1" max="20"/>
+            </div>
+            @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!fq.valid">Criar Quarto</button>
+            </div>
+          </form>
+        }
+
+        <!-- Editar Quarto -->
+        @if (modal() === 'editQuarto') {
+          <h2>Editar Quarto</h2>
+          <form (ngSubmit)="submeterEditQuarto()" #feq="ngForm">
+            <div class="form-group">
+              <label>Número do Quarto</label>
+              <input type="text" [(ngModel)]="editQuartoForm.numero_quarto" name="numero" required/>
+            </div>
+            <div class="form-group">
+              <label>Tipo de Quarto</label>
+              <select [(ngModel)]="editQuartoForm.tipo_quarto" name="tipo" required>
+                <option value="Enfermaria">Enfermaria</option>
+                <option value="Individual">Individual</option>
+                <option value="Suite">Suíte</option>
+                <option value="UCI">UCI</option>
+                <option value="Isolamento">Isolamento</option>
+              </select>
+            </div>
+            @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!feq.valid">Guardar</button>
+            </div>
+          </form>
+        }
+
+        <!-- Nova Especialidade -->
+        @if (modal() === 'especialidade') {
+          <h2>Nova Especialidade</h2>
+          <form (ngSubmit)="submeterEspecialidade()" #fesp="ngForm">
+            <div class="form-group">
+              <label>Nome da Especialidade</label>
+              <input type="text" [(ngModel)]="formEspecialidade.nome_especialidade" name="nome" required placeholder="Ex: Cardiologia"/>
+            </div>
+            @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!fesp.valid">Criar</button>
+            </div>
+          </form>
+        }
+
+        <!-- Gerir Especialidades de um Andar -->
+        @if (modal() === 'gestesp' && gestEspAndar()) {
+          <h2>Especialidades — Piso {{ gestEspAndar()!.numero_piso }} {{ gestEspAndar()!.nome_ala }}</h2>
+
+          <div class="esp-lista">
+            @if (gestEspAndar()!.especialidades.length === 0) {
+              <p class="text-muted" style="margin:0">Nenhuma especialidade associada.</p>
+            }
+            @for (e of gestEspAndar()!.especialidades; track e._id) {
+              <div class="esp-tag">
+                <span>{{ e.nome_especialidade }}</span>
+                <button class="btn-esp-remove" (click)="desassociar(e._id)" title="Remover">✕</button>
+              </div>
+            }
           </div>
-          <div class="form-group">
-            <label>Nome da Ala</label>
-            <input type="text" [(ngModel)]="formAndar.nome_ala" name="ala" required placeholder="Ex: Ala Norte"/>
-          </div>
-          @if (erroAndar()) {
-            <div class="form-error-msg">{{ erroAndar() }}</div>
+
+          @if (especialidadesNaoAssociadas().length > 0) {
+            <div class="esp-assoc">
+              <select [(ngModel)]="assocEspId" name="espAssoc">
+                <option value="">Adicionar especialidade...</option>
+                @for (e of especialidadesNaoAssociadas(); track e._id) {
+                  <option [value]="e._id">{{ e.nome_especialidade }}</option>
+                }
+              </select>
+              <button type="button" class="btn-primary" [disabled]="!assocEspId()" (click)="associar()">Associar</button>
+            </div>
           }
+
+          @if (erro()) { <div class="form-error-msg" style="margin-top:0.75rem">{{ erro() }}</div> }
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="mostrarFormAndar.set(false)">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!fa.valid">Criar Andar</button>
+            <button type="button" class="btn-secondary" (click)="fecharModal()">Fechar</button>
           </div>
-        </form>
+        }
+
       </div>
     </div>
   }
+
+  <!-- ====== ESPECIALIDADES ====== -->
+  <div class="section-header">
+    <div>
+      <p class="section-title">Especialidades Médicas</p>
+      <span class="section-count">{{ especialidades().length }} especialidade(s)</span>
+    </div>
+    <button class="btn-primary" (click)="modal.set('especialidade'); erro.set(null)">+ Nova Especialidade</button>
+  </div>
+
+  <div class="card" style="margin-bottom: 2.5rem">
+    @if (especialidades().length === 0) {
+      <div class="empty-state">Sem especialidades registadas.</div>
+    } @else {
+      <div class="esp-grid">
+        @for (e of especialidades(); track e._id) {
+          <div class="esp-card">
+            <span class="esp-nome">{{ e.nome_especialidade }}</span>
+            <button class="btn-icon btn-danger-icon" (click)="apagarEspecialidade(e)" title="Apagar">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ====== ANDARES ====== -->
+  <div class="section-header">
+    <div>
+      <p class="section-title">Andares</p>
+      <span class="section-count">{{ andares().length }} piso(s) registado(s)</span>
+    </div>
+    <button class="btn-primary" (click)="modal.set('andar'); erro.set(null)">+ Adicionar Andar</button>
+  </div>
 
   <div class="card" style="margin-bottom: 2.5rem">
     <table>
       <thead>
         <tr>
           <th>Piso</th>
-          <th>Nome da Ala</th>
-          <th>Quartos neste andar</th>
+          <th>Ala</th>
+          <th>Especialidades</th>
+          <th>Quartos</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -54,70 +225,57 @@
           <tr>
             <td><strong>Piso {{ a.numero_piso }}</strong></td>
             <td>{{ a.nome_ala }}</td>
-            <td>{{ countQuartos(a._id) }} quarto(s)</td>
+            <td>
+              @if (a.especialidades && a.especialidades.length > 0) {
+                <div class="esp-tags-inline">
+                  @for (e of a.especialidades; track e._id) {
+                    <span class="badge-esp">{{ e.nome_especialidade }}</span>
+                  }
+                </div>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td>{{ countQuartos(a._id) }}</td>
+            <td class="actions-cell">
+              <button class="btn-sm btn-outline" (click)="abrirGestEsp(a)" title="Gerir especialidades">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/>
+                </svg>
+                Especialidades
+              </button>
+              <button class="btn-sm btn-outline" (click)="abrirEditAndar(a)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                </svg>
+                Editar
+              </button>
+              <button class="btn-sm btn-danger" (click)="apagarAndar(a)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                </svg>
+                Apagar
+              </button>
+            </td>
           </tr>
         } @empty {
-          <tr><td colspan="3" class="empty">Sem andares. Adicione o primeiro andar para começar.</td></tr>
+          <tr><td colspan="5" class="empty">Sem andares. Adicione o primeiro andar para começar.</td></tr>
         }
       </tbody>
     </table>
   </div>
 
-  <!-- QUARTOS -->
+  <!-- ====== QUARTOS ====== -->
   <div class="section-header">
     <div>
-      <p class="section-title" style="margin:0 0 0.2rem">Quartos e Camas</p>
+      <p class="section-title">Quartos e Camas</p>
       <span class="section-count">{{ quartos().length }} quarto(s) — camas geradas automaticamente</span>
     </div>
-    <button class="btn-primary" [disabled]="andares().length === 0" (click)="mostrarFormQuarto.set(true)">
+    <button class="btn-primary" [disabled]="andares().length === 0" (click)="modal.set('quarto'); erro.set(null)">
       + Adicionar Quarto
     </button>
   </div>
-
-  @if (mostrarFormQuarto()) {
-    <div class="modal-overlay" (click)="mostrarFormQuarto.set(false)">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <h2>Novo Quarto</h2>
-        <p class="modal-hint">As camas são geradas automaticamente com base na capacidade máxima.</p>
-        <form (ngSubmit)="submeterQuarto()" #fq="ngForm">
-          <div class="form-group">
-            <label>Andar</label>
-            <select [(ngModel)]="formQuarto.andar_id" name="andar" required>
-              <option value="">Selecionar andar...</option>
-              @for (a of andares(); track a._id) {
-                <option [value]="a._id">Piso {{ a.numero_piso }} — {{ a.nome_ala }}</option>
-              }
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Número do Quarto</label>
-            <input type="text" [(ngModel)]="formQuarto.numero_quarto" name="numero" required placeholder="Ex: 101"/>
-          </div>
-          <div class="form-group">
-            <label>Tipo de Quarto</label>
-            <select [(ngModel)]="formQuarto.tipo_quarto" name="tipo" required>
-              <option value="">Selecionar tipo...</option>
-              <option value="Enfermaria">Enfermaria</option>
-              <option value="Individual">Individual</option>
-              <option value="Suite">Suíte</option>
-              <option value="UCI">UCI</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Capacidade Máxima (nº de camas)</label>
-            <input type="number" [(ngModel)]="formQuarto.capacidade_maxima" name="cap" required min="1" max="20"/>
-          </div>
-          @if (erroQuarto()) {
-            <div class="form-error-msg">{{ erroQuarto() }}</div>
-          }
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="mostrarFormQuarto.set(false)">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!fq.valid">Criar Quarto</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  }
 
   <div class="card">
     <table>
@@ -127,6 +285,7 @@
           <th>Andar</th>
           <th>Tipo</th>
           <th>Capacidade</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -136,9 +295,23 @@
             <td>{{ nomeAndar(q) }}</td>
             <td>{{ q.tipo_quarto }}</td>
             <td>{{ q.capacidade_maxima }} cama(s)</td>
+            <td class="actions-cell">
+              <button class="btn-sm btn-outline" (click)="abrirEditQuarto(q)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                </svg>
+                Editar
+              </button>
+              <button class="btn-sm btn-danger" (click)="apagarQuarto(q)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                </svg>
+                Apagar
+              </button>
+            </td>
           </tr>
         } @empty {
-          <tr><td colspan="4" class="empty">Sem quartos. Adicione um andar primeiro e depois crie quartos.</td></tr>
+          <tr><td colspan="5" class="empty">Sem quartos. Adicione um andar primeiro e depois crie quartos.</td></tr>
         }
       </tbody>
     </table>

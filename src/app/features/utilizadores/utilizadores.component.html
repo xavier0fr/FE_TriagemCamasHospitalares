@@ -4,14 +4,14 @@
       <h1>Utilizadores</h1>
       <p>Gestão de contas e acessos ao sistema</p>
     </div>
-    <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Registar Utilizador</button>
+    <button class="btn-primary" (click)="abrirCriar()">+ Registar Utilizador</button>
   </div>
 
-  @if (mostrarFormulario()) {
-    <div class="modal-overlay" (click)="mostrarFormulario.set(false)">
+  @if (modal()) {
+    <div class="modal-overlay" (click)="fecharModal()">
       <div class="modal" (click)="$event.stopPropagation()">
-        <h2>Registar Novo Utilizador</h2>
-        <form (ngSubmit)="submeter()" #f="ngForm">
+        <h2>{{ modal() === 'editar' ? 'Editar Utilizador' : 'Registar Novo Utilizador' }}</h2>
+        <form (ngSubmit)="modal() === 'editar' ? submeterEditar() : submeter()" #f="ngForm">
           <div class="form-row">
             <div class="form-group">
               <label>Nome Completo</label>
@@ -22,41 +22,44 @@
               <input type="email" [(ngModel)]="form.email" name="email" required placeholder="email@hospital.pt"/>
             </div>
           </div>
-          <div class="form-row">
+          @if (modal() === 'criar') {
             <div class="form-group">
               <label>Password</label>
               <input type="password" [(ngModel)]="form.password_hash" name="password" required placeholder="••••••••"/>
             </div>
+          }
+          <div class="form-row">
             <div class="form-group">
               <label>Tipo de Utilizador</label>
               <select [(ngModel)]="form.tipo_utilizador" name="tipo" required>
                 <option value="">Selecionar...</option>
                 <option value="enfermeiro_gestor">Enfermeiro Gestor</option>
                 <option value="auxiliar_limpeza">Auxiliar de Limpeza</option>
+                <option value="admin">Administrador</option>
               </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Cédula Profissional</label>
-              <input type="text" [(ngModel)]="form.cedula_profissional" name="cedula" required placeholder="CP-000000"/>
             </div>
             <div class="form-group">
               <label>Turno de Trabalho</label>
-              <select [(ngModel)]="form.turno_trabalho" name="turno" required>
-                <option value="">Selecionar...</option>
+              <select [(ngModel)]="form.turno_trabalho" name="turno">
+                <option value="">—</option>
                 <option value="Manhã">Manhã</option>
                 <option value="Tarde">Tarde</option>
                 <option value="Noite">Noite</option>
               </select>
             </div>
           </div>
+          <div class="form-group">
+            <label>Cédula Profissional</label>
+            <input type="text" [(ngModel)]="form.cedula_profissional" name="cedula" placeholder="CP-000000"/>
+          </div>
           @if (erro()) {
             <div class="form-error-msg">{{ erro() }}</div>
           }
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!f.valid">Registar</button>
+            <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!f.valid">
+              {{ modal() === 'editar' ? 'Guardar' : 'Registar' }}
+            </button>
           </div>
         </form>
       </div>
@@ -75,23 +78,38 @@
             <th>Função</th>
             <th>Cédula</th>
             <th>Turno</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
           @for (u of utilizadores(); track u._id) {
             <tr>
               <td><strong>{{ u.nome_completo }}</strong></td>
-              <td>{{ u.email }}</td>
+              <td class="text-muted">{{ u.email }}</td>
               <td>
                 <span class="role-badge" [class]="roleBadgeClass(u.tipo_utilizador)">
                   {{ roleLabel(u.tipo_utilizador) }}
                 </span>
               </td>
-              <td>{{ u.cedula_profissional }}</td>
-              <td>{{ u.turno_trabalho }}</td>
+              <td class="text-muted">{{ u.cedula_profissional || '—' }}</td>
+              <td class="text-muted">{{ u.turno_trabalho || '—' }}</td>
+              <td class="actions-cell">
+                <button class="btn-sm btn-outline" (click)="abrirEditar(u)">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                  </svg>
+                  Editar
+                </button>
+                <button class="btn-sm btn-danger" (click)="apagar(u)">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                  </svg>
+                  Apagar
+                </button>
+              </td>
             </tr>
           } @empty {
-            <tr><td colspan="5" class="empty">Sem utilizadores registados.</td></tr>
+            <tr><td colspan="6" class="empty">Sem utilizadores registados.</td></tr>
           }
         </tbody>
       </table>

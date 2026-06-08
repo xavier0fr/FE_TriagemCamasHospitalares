@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CriarInternamentoRequest, Internamento } from '../models/internamento.model';
+import { SugestaoResponse } from '../models/infraestrutura.model';
 
 @Injectable({ providedIn: 'root' })
 export class InternamentoService {
@@ -18,6 +19,11 @@ export class InternamentoService {
 
   getById(id: string) {
     return this.http.get<Internamento>(`${this.base}/${id}`);
+  }
+
+  sugerirCama(especialidade_id?: string) {
+    const params = especialidade_id ? `?especialidade_id=${especialidade_id}` : '';
+    return this.http.get<SugestaoResponse>(`${this.base}/sugerir-cama${params}`);
   }
 
   criar(data: CriarInternamentoRequest) {

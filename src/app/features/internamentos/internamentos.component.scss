@@ -1,1 +1,108 @@
 // All shared styles come from styles.scss
+
+.modal-lg { max-width: 620px; }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  h2 { margin: 0; }
+}
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  &:hover { background: #f1f5f9; color: #475569; }
+}
+
+.sugestao-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.sugestao-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.7rem;
+}
+
+.sugestao-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  select { flex: 1; }
+}
+
+.btn-sugerir {
+  padding: 0.45rem 0.9rem;
+  background: #1d4ed8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  font-family: inherit;
+  &:hover:not(:disabled) { background: #1e40af; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.sugestao-resultado {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: #166534;
+  margin-top: 0.6rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+}
+
+.sugestao-erro {
+  font-size: 0.82rem;
+  color: #dc2626;
+  margin-top: 0.6rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+}
+
+.table-info {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cama-code {
+  font-family: monospace;
+  font-size: 0.85rem;
+  background: #f1f5f9;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.motivo-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-muted { color: #94a3b8; font-size: 0.85rem; }

@@ -27,4 +27,8 @@ export class DoenteService {
   update(id: string, data: Partial<Doente>) {
     return this.http.put<Doente>(`${this.base}/${id}`, data);
   }
+
+  delete(id: string) {
+    return this.http.delete<{ message: string }>(`${this.base}/${id}`);
+  }
 }

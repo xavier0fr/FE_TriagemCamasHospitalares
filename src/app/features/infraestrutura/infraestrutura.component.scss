@@ -25,3 +25,140 @@
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 }
+
+// Shared action styles
+.actions-cell { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+
+.btn-sm {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.btn-outline {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  &:hover { background: #f8fafc; border-color: #94a3b8; }
+}
+
+.btn-danger {
+  background: #fef2f2;
+  color: #dc2626;
+  &:hover { background: #fee2e2; }
+}
+
+.text-muted { color: #94a3b8; font-size: 0.85rem; }
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+// Especialidades
+.esp-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.esp-card {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f0f4ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+}
+
+.esp-nome {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3730a3;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.15rem;
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.btn-danger-icon {
+  color: #dc2626;
+  &:hover { background: #fee2e2; }
+}
+
+.badge-esp {
+  display: inline-block;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+}
+
+.esp-tags-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+// Gerir especialidades modal
+.esp-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 40px;
+  margin-bottom: 1rem;
+}
+
+.esp-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+  color: #166534;
+  font-weight: 600;
+}
+
+.btn-esp-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #dc2626;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+  &:hover { opacity: 1; }
+}
+
+.esp-assoc {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  select { flex: 1; }
+}

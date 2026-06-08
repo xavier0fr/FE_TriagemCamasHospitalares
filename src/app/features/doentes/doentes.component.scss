@@ -7,3 +7,42 @@
   border-radius: 4px;
   color: #475569;
 }
+
+.actions-cell { display: flex; gap: 0.4rem; align-items: center; }
+
+.btn-sm {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.btn-outline {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  &:hover { background: #f8fafc; border-color: #94a3b8; }
+}
+
+.btn-danger {
+  background: #fef2f2;
+  color: #dc2626;
+  &:hover { background: #fee2e2; }
+}
+
+.form-error-msg {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+}

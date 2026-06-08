@@ -16,6 +16,18 @@ export class CamaService {
     return this.http.get<Cama>(`${this.base}/${id}`);
   }
 
+  getLivres() {
+    return this.http.get<Cama[]>(`${this.base}/livres`);
+  }
+
+  getParaHigienizar() {
+    return this.http.get<Cama[]>(`${this.base}/para-higienizar`);
+  }
+
+  aguardar(id: string) {
+    return this.http.put<Cama>(`${this.base}/${id}/aguardar`, {});
+  }
+
   higienizar(id: string) {
     return this.http.put<Cama>(`${this.base}/${id}/higienizar`, {});
   }

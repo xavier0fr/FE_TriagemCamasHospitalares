@@ -4,23 +4,62 @@
       <h1>Internamentos Ativos</h1>
       <p>Gestão de internamentos e altas hospitalares</p>
     </div>
-    <button class="btn-primary" (click)="mostrarFormulario.set(true)">+ Novo Internamento</button>
+    <button class="btn-primary" (click)="abrirFormulario()">+ Novo Internamento</button>
   </div>
 
   @if (mostrarFormulario()) {
     <div class="modal-overlay" (click)="mostrarFormulario.set(false)">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <h2>Novo Internamento</h2>
+      <div class="modal modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Novo Internamento</h2>
+          <button class="btn-close" (click)="mostrarFormulario.set(false)">✕</button>
+        </div>
+
         <form (ngSubmit)="submeter()" #f="ngForm">
           <div class="form-group">
             <label>Doente</label>
             <select [(ngModel)]="form.doente" name="doente" required>
               <option value="">Selecionar doente...</option>
               @for (d of doentes(); track d._id) {
-                <option [value]="d._id">{{ d.nome_completo }} ({{ d.numero_sns }})</option>
+                <option [value]="d._id">{{ d.nome_completo }} — SNS: {{ d.numero_sns }}</option>
               }
             </select>
           </div>
+
+          <!-- Sugestão automática de cama -->
+          <div class="sugestao-box">
+            <div class="sugestao-header">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+              <span>Sugestão automática de cama</span>
+            </div>
+            <div class="sugestao-controls">
+              <select [(ngModel)]="sugestaoEspecialidade" name="sugestaoEsp">
+                <option value="">Qualquer especialidade</option>
+                @for (e of especialidades(); track e._id) {
+                  <option [value]="e._id">{{ e.nome_especialidade }}</option>
+                }
+              </select>
+              <button type="button" class="btn-sugerir" (click)="pedirSugestao()" [disabled]="sugestaoLoading()">
+                {{ sugestaoLoading() ? 'A pesquisar...' : 'Sugerir cama' }}
+              </button>
+            </div>
+            @if (sugestao()) {
+              @if (sugestao().erro) {
+                <div class="sugestao-erro">{{ sugestao().erro }}</div>
+              } @else {
+                <div class="sugestao-resultado">
+                  <svg width="14" height="14" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Sugestão: <strong>{{ sugestao().sugestao?.codigo_cama }}</strong>
+                  — {{ sugestao().total_disponiveis }} cama(s) disponível(is)
+                </div>
+              }
+            }
+          </div>
+
           <div class="form-group">
             <label>Cama (Livre e Limpa)</label>
             <select [(ngModel)]="form.cama" name="cama" required>
@@ -30,13 +69,15 @@
               }
             </select>
           </div>
+
           <div class="form-group">
             <label>Motivo de Internamento</label>
-            <textarea [(ngModel)]="form.motivo_internamento" name="motivo" required rows="3"></textarea>
+            <textarea [(ngModel)]="form.motivo_internamento" name="motivo" required rows="3" placeholder="Descreva o motivo do internamento..."></textarea>
           </div>
+
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!f.valid">Internar</button>
+            <button type="submit" class="btn-primary" [disabled]="!f.valid">Confirmar Internamento</button>
           </div>
         </form>
       </div>
@@ -47,11 +88,16 @@
     <div class="loading-state">A carregar internamentos...</div>
   } @else {
     <div class="card">
+      @if (internamentos().length > 0) {
+        <div class="table-info">{{ internamentos().length }} internamento(s) ativo(s)</div>
+      }
       <table>
         <thead>
           <tr>
             <th>Doente</th>
+            <th>SNS</th>
             <th>Cama</th>
+            <th>Quarto</th>
             <th>Motivo</th>
             <th>Entrada</th>
             <th>Ações</th>
@@ -61,15 +107,22 @@
           @for (i of internamentos(); track i._id) {
             <tr>
               <td><strong>{{ nomeDoente(i) }}</strong></td>
-              <td>{{ codigoCama(i) }}</td>
-              <td>{{ i.motivo_internamento }}</td>
-              <td>{{ i.data_hora_entrada | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="text-muted">{{ snsDoente(i) }}</td>
+              <td><span class="cama-code">{{ codigoCama(i) }}</span></td>
+              <td class="text-muted">{{ quartoInfo(i) }}</td>
+              <td class="motivo-cell">{{ i.motivo_internamento }}</td>
+              <td class="text-muted">{{ i.data_hora_entrada | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>
-                <button class="btn-danger" (click)="darAlta(i._id)">Dar Alta</button>
+                <button class="btn-sm btn-danger" (click)="darAlta(i._id)">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+                  </svg>
+                  Dar Alta
+                </button>
               </td>
             </tr>
           } @empty {
-            <tr><td colspan="5" class="empty">Sem internamentos ativos.</td></tr>
+            <tr><td colspan="7" class="empty">Sem internamentos ativos.</td></tr>
           }
         </tbody>
       </table>

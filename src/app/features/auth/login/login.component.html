@@ -71,6 +71,28 @@
           {{ loading() ? 'A autenticar...' : 'Entrar no Sistema' }}
         </button>
       </form>
+
+      <div class="quick-login-section">
+        <div class="quick-login-label">
+          <span class="ql-line"></span>
+          <span class="ql-text">Acesso rápido (testes)</span>
+          <span class="ql-line"></span>
+        </div>
+        <div class="quick-login-btns">
+          @for (u of quickUsers; track u.email) {
+            <button
+              type="button"
+              class="btn-quick"
+              [class]="'btn-quick btn-quick--' + u.color"
+              [disabled]="loading()"
+              (click)="quickLogin(u)"
+            >
+              <span class="ql-role">{{ u.label }}</span>
+              <span class="ql-email">{{ u.email }}</span>
+            </button>
+          }
+        </div>
+      </div>
     </div>
   </div>
 </div>
