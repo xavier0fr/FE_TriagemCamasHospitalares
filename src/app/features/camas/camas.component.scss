@@ -1,88 +1,82 @@
-.btn-higienizar {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 0.35rem 0.85rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
+// Badges base (definidos no global ou aqui)
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover { background: #1d4ed8; }
+  white-space: nowrap;
 }
+.badge-livre    { background: #dcfce7; color: #166534; }
+.badge-ocupada  { background: #fee2e2; color: #991b1b; }
+.badge-limpa    { background: #dcfce7; color: #166534; }
+.badge-suja     { background: #fee2e2; color: #991b1b; }
+.badge-aguardar { background: #fef9c3; color: #854d0e; }
 
 .btn-refresh {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.15s;
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 1rem; background: white; border: 1px solid #e2e8f0;
+  border-radius: 8px; font-size: 0.85rem; color: #475569; cursor: pointer;
+  transition: all 0.15s; font-family: inherit;
   &:hover { background: #f8fafc; border-color: #cbd5e1; }
 }
 
 .stats-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
+  display: flex; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap;
 }
 
 .stat-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: white;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
-
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; background: white; border: 1.5px solid #e2e8f0;
+  border-radius: 10px; cursor: pointer; transition: all 0.15s; font-family: inherit;
   &:hover { border-color: #94a3b8; }
-
   &.active { background: #1d4ed8; border-color: #1d4ed8; color: white; .chip-num, .chip-lbl { color: white; } }
-
   .chip-num { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
   .chip-lbl { font-size: 0.75rem; color: #64748b; }
-
-  &--livre.active { background: #16a34a; border-color: #16a34a; }
+  &--livre.active   { background: #16a34a; border-color: #16a34a; }
   &--ocupada.active { background: #dc2626; border-color: #dc2626; }
   &--higienizar.active { background: #d97706; border-color: #d97706; }
 }
 
-.text-muted { color: #94a3b8; font-size: 0.85rem; }
+.legenda-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
+.legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.text-muted { color: #94a3b8; font-size: 0.85rem; }
 .actions-cell { display: flex; gap: 0.4rem; align-items: center; }
 
 .btn-sm {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.35rem 0.7rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0.35rem 0.7rem; border: none; border-radius: 6px;
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s; font-family: inherit;
 }
 
-.btn-higienizar {
-  background: #dcfce7;
-  color: #166534;
+.btn-iniciar {
+  background: #fef9c3; color: #854d0e;
+  &:hover { background: #fef08a; }
+}
+
+.btn-concluir {
+  background: #dcfce7; color: #166534;
   &:hover { background: #bbf7d0; }
 }
 
-.btn-aguardar {
-  background: #fef9c3;
-  color: #854d0e;
-  &:hover { background: #fef08a; }
+.loading-state {
+  padding: 3rem; text-align: center; color: #94a3b8;
 }

@@ -14,15 +14,13 @@ export class CamasComponent implements OnInit {
   camas = signal<Cama[]>([]);
   loading = signal(true);
   erro = signal<string | null>(null);
-
-  // filtro activo para a tabela
   filtro = signal<'todas' | 'livres' | 'ocupadas' | 'higienizar'>('todas');
 
   camasFiltradas = computed(() => {
     const f = this.filtro();
     return this.camas().filter(c => {
-      if (f === 'livres') return c.estado_ocupacao === 'Livre';
-      if (f === 'ocupadas') return c.estado_ocupacao === 'Ocupada';
+      if (f === 'livres')      return c.estado_ocupacao === 'Livre' && c.estado_limpeza === 'Limpa';
+      if (f === 'ocupadas')   return c.estado_ocupacao === 'Ocupada';
       if (f === 'higienizar') return c.estado_limpeza === 'Suja' || c.estado_limpeza === 'A Aguardar';
       return true;
     });
@@ -32,7 +30,6 @@ export class CamasComponent implements OnInit {
 
   ngOnInit() {
     this.carregar();
-    // Para auxiliares, filtrar por defeito
     if (this.auth.role() === 'auxiliar_limpeza') {
       this.filtro.set('higienizar');
     }
@@ -46,12 +43,14 @@ export class CamasComponent implements OnInit {
     });
   }
 
-  higienizar(id: string) {
-    this.camaService.higienizar(id).subscribe(() => this.carregar());
+  // Auxiliar: Suja → A Aguardar (inicia limpeza)
+  iniciarLimpeza(id: string) {
+    this.camaService.aguardar(id).subscribe(() => this.carregar());
   }
 
-  aguardar(id: string) {
-    this.camaService.aguardar(id).subscribe(() => this.carregar());
+  // Auxiliar: A Aguardar → Limpa (conclui limpeza)
+  concluirLimpeza(id: string) {
+    this.camaService.higienizar(id).subscribe(() => this.carregar());
   }
 
   badgeOcupacao(estado: string) {
@@ -59,30 +58,26 @@ export class CamasComponent implements OnInit {
   }
 
   badgeLimpeza(estado: string) {
-    if (estado === 'Limpa') return 'badge-limpa';
-    if (estado === 'Suja') return 'badge-suja';
+    if (estado === 'Limpa')      return 'badge-limpa';
+    if (estado === 'Suja')       return 'badge-suja';
     return 'badge-aguardar';
   }
 
   nomeQuarto(cama: Cama): string {
-    if (typeof cama.quarto === 'object') {
-      const q = cama.quarto as Quarto;
-      return q.numero_quarto;
-    }
+    if (typeof cama.quarto === 'object') return (cama.quarto as Quarto).numero_quarto;
     return String(cama.quarto);
   }
 
   nomeAndar(cama: Cama): string {
     if (typeof cama.quarto === 'object') {
       const q = cama.quarto as Quarto;
-      if (typeof q.andar === 'object' && q.andar) {
+      if (typeof q.andar === 'object' && q.andar)
         return `Piso ${(q.andar as any).numero_piso} — ${(q.andar as any).nome_ala}`;
-      }
     }
     return '—';
   }
 
-  get countLivres() { return this.camas().filter(c => c.estado_ocupacao === 'Livre' && c.estado_limpeza === 'Limpa').length; }
-  get countOcupadas() { return this.camas().filter(c => c.estado_ocupacao === 'Ocupada').length; }
+  get countLivres()     { return this.camas().filter(c => c.estado_ocupacao === 'Livre' && c.estado_limpeza === 'Limpa').length; }
+  get countOcupadas()   { return this.camas().filter(c => c.estado_ocupacao === 'Ocupada').length; }
   get countHigienizar() { return this.camas().filter(c => c.estado_limpeza === 'Suja' || c.estado_limpeza === 'A Aguardar').length; }
 }

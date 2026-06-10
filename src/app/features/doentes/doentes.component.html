@@ -11,27 +11,54 @@
     <div class="modal-overlay" (click)="fecharModal()">
       <div class="modal" (click)="$event.stopPropagation()">
         <h2>{{ modal() === 'editar' ? 'Editar Doente' : 'Registar Doente' }}</h2>
+
         <form (ngSubmit)="modal() === 'editar' ? submeterEditar() : submeter()" #f="ngForm">
+
           <div class="form-group">
-            <label>N.º SNS</label>
-            <input type="text" [(ngModel)]="form.numero_sns" name="sns" required placeholder="000000000"/>
+            <label>N.º SNS <span class="hint">(9 dígitos)</span></label>
+            <input type="text" [(ngModel)]="form.numero_sns" name="sns" required
+              placeholder="000000000" maxlength="9"
+              [class.input-error]="form.numero_sns && !snsValido"/>
+            @if (form.numero_sns && !snsValido) {
+              <span class="field-error">O SNS deve ter exatamente 9 dígitos.</span>
+            }
           </div>
+
           <div class="form-group">
             <label>Nome Completo</label>
-            <input type="text" [(ngModel)]="form.nome_completo" name="nome" required/>
+            <input type="text" [(ngModel)]="form.nome_completo" name="nome" required
+              placeholder="Ex: Maria Fernanda Silva"
+              [class.input-error]="form.nome_completo && !nomeValido"/>
+            @if (form.nome_completo && !nomeValido) {
+              <span class="field-error">O nome não pode conter números (mín. 3 caracteres).</span>
+            }
           </div>
+
           <div class="form-group">
             <label>Data de Nascimento</label>
-            <input type="date" [(ngModel)]="form.data_nascimento" name="nascimento" required/>
+            <input type="date" [(ngModel)]="form.data_nascimento" name="nascimento" required
+              [max]="hoje" [min]="dataMin"
+              [class.input-error]="form.data_nascimento && !dataValida"/>
+            @if (form.data_nascimento && !dataValida) {
+              <span class="field-error">Data inválida (não pode ser futura nem superior a 120 anos).</span>
+            }
           </div>
+
           <div class="form-group">
             <label>Contacto de Emergência</label>
-            <input type="text" [(ngModel)]="form.contacto_emergencia" name="contacto" required placeholder="+351 912 345 678"/>
+            <input type="tel" [(ngModel)]="form.contacto_emergencia" name="contacto" required
+              placeholder="+351 912 345 678"
+              [class.input-error]="form.contacto_emergencia && !contactoValido"/>
+            @if (form.contacto_emergencia && !contactoValido) {
+              <span class="field-error">Introduza um número de contacto válido (mín. 9 dígitos).</span>
+            }
           </div>
+
           @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
+
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!f.valid">
+            <button type="submit" class="btn-primary" [disabled]="!formValido">
               {{ modal() === 'editar' ? 'Guardar' : 'Registar' }}
             </button>
           </div>

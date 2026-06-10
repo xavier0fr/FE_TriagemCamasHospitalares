@@ -18,7 +18,36 @@ export class DoenteComponent implements OnInit {
   editId = signal('');
   erro = signal<string | null>(null);
 
-  form: Partial<Doente> = { numero_sns: '', nome_completo: '', data_nascimento: '', contacto_emergencia: '' };
+  form: Partial<Doente> & { confirmar?: string } = {
+    numero_sns: '', nome_completo: '', data_nascimento: '', contacto_emergencia: ''
+  };
+
+  // Data máxima = hoje
+  readonly hoje = new Date().toISOString().substring(0, 10);
+  // Data mínima = 120 anos atrás
+  readonly dataMin = new Date(new Date().getFullYear() - 120, 0, 1).toISOString().substring(0, 10);
+
+  get nomeValido(): boolean {
+    return /^[^\d]+$/.test((this.form.nome_completo ?? '').trim()) && (this.form.nome_completo ?? '').trim().length >= 3;
+  }
+
+  get snsValido(): boolean {
+    return /^\d{9}$/.test(this.form.numero_sns ?? '');
+  }
+
+  get dataValida(): boolean {
+    if (!this.form.data_nascimento) return false;
+    return this.form.data_nascimento <= this.hoje && this.form.data_nascimento >= this.dataMin;
+  }
+
+  get contactoValido(): boolean {
+    // Aceita formato: +351 XXX XXX XXX, 9XXXXXXXX, ou similar com 9+ dígitos
+    return /^[\d\s\+\-\(\)]{9,20}$/.test(this.form.contacto_emergencia ?? '');
+  }
+
+  get formValido(): boolean {
+    return this.nomeValido && this.snsValido && this.dataValida && this.contactoValido;
+  }
 
   constructor(public auth: AuthService, private doenteService: DoenteService) {}
 
@@ -40,13 +69,19 @@ export class DoenteComponent implements OnInit {
 
   abrirEditar(d: Doente) {
     this.editId.set(d._id);
-    this.form = { numero_sns: d.numero_sns, nome_completo: d.nome_completo, data_nascimento: d.data_nascimento?.substring(0, 10), contacto_emergencia: d.contacto_emergencia };
+    this.form = {
+      numero_sns: d.numero_sns,
+      nome_completo: d.nome_completo,
+      data_nascimento: d.data_nascimento?.substring(0, 10),
+      contacto_emergencia: d.contacto_emergencia
+    };
     this.erro.set(null);
     this.modal.set('editar');
   }
 
   submeter() {
     this.erro.set(null);
+    if (!this.formValido) { this.erro.set('Verifique os campos assinalados.'); return; }
     this.doenteService.create(this.form).subscribe({
       next: () => { this.modal.set(null); this.carregar(); },
       error: (e) => this.erro.set(e.error?.error ?? 'Erro ao registar doente.')
@@ -55,6 +90,7 @@ export class DoenteComponent implements OnInit {
 
   submeterEditar() {
     this.erro.set(null);
+    if (!this.formValido) { this.erro.set('Verifique os campos assinalados.'); return; }
     this.doenteService.update(this.editId(), this.form).subscribe({
       next: () => { this.modal.set(null); this.carregar(); },
       error: (e) => this.erro.set(e.error?.error ?? 'Erro ao editar doente.')

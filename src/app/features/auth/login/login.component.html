@@ -1,3 +1,109 @@
+<!-- Modal de registo -->
+@if (mostrarRegisto()) {
+  <div class="modal-overlay" (click)="mostrarRegisto.set(false)">
+    <div class="modal-registo" (click)="$event.stopPropagation()">
+      <div class="modal-registo-header">
+        <div class="modal-registo-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Criar Conta</h2>
+          <p>Registo para Enfermeiros e Auxiliares de Limpeza</p>
+        </div>
+        <button class="btn-modal-close" (click)="mostrarRegisto.set(false)">✕</button>
+      </div>
+
+      @if (sucessoRegisto()) {
+        <div class="registo-sucesso">
+          <svg width="32" height="32" fill="none" stroke="#16a34a" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p><strong>Conta criada com sucesso!</strong></p>
+          <p class="text-muted">Pode agora fazer login com as suas credenciais.</p>
+          <button class="btn-submit" (click)="mostrarRegisto.set(false)">Fechar</button>
+        </div>
+      } @else {
+        <form (ngSubmit)="submeterRegisto()" #rf="ngForm">
+          <div class="rform-group">
+            <label>Nome Completo</label>
+            <input type="text" [(ngModel)]="registo.nome_completo" name="nome" required
+              placeholder="Ex: Ana Silva"
+              [class.input-error]="registo.nome_completo && !nomeValido"/>
+            @if (registo.nome_completo && !nomeValido) {
+              <span class="field-error">O nome não pode conter números.</span>
+            }
+          </div>
+
+          <div class="rform-group">
+            <label>Email Institucional</label>
+            <input type="email" [(ngModel)]="registo.email" name="email" required placeholder="utilizador@hospital.pt"/>
+          </div>
+
+          <div class="rform-row">
+            <div class="rform-group">
+              <label>Password</label>
+              <input type="password" [(ngModel)]="registo.password_hash" name="password" required
+                placeholder="Mín. 6 caracteres" minlength="6"/>
+            </div>
+            <div class="rform-group">
+              <label>Confirmar Password</label>
+              <input type="password" [(ngModel)]="registo.confirmar_password" name="confirmar" required
+                placeholder="••••••"
+                [class.input-error]="registo.confirmar_password && !passwordsIguais"/>
+              @if (registo.confirmar_password && !passwordsIguais) {
+                <span class="field-error">As passwords não coincidem.</span>
+              }
+            </div>
+          </div>
+
+          <div class="rform-group">
+            <label>Tipo de Conta</label>
+            <select [(ngModel)]="registo.tipo_utilizador" name="tipo" required>
+              <option value="">Selecionar...</option>
+              <option value="enfermeiro_gestor">Enfermeiro Gestor</option>
+              <option value="auxiliar_limpeza">Auxiliar de Limpeza</option>
+            </select>
+          </div>
+
+          @if (mostrarCedula) {
+            <div class="rform-group">
+              <label>Cédula Profissional</label>
+              <input type="text" [(ngModel)]="registo.cedula_profissional" name="cedula" required
+                placeholder="Ex: CP-123456"/>
+            </div>
+          }
+
+          @if (mostrarTurno) {
+            <div class="rform-group">
+              <label>Turno de Trabalho</label>
+              <select [(ngModel)]="registo.turno_trabalho" name="turno" required>
+                <option value="">Selecionar...</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
+              </select>
+            </div>
+          }
+
+          @if (erroRegisto()) {
+            <div class="rform-error">{{ erroRegisto() }}</div>
+          }
+
+          <div class="rform-actions">
+            <button type="button" class="btn-secondary-sm" (click)="mostrarRegisto.set(false)">Cancelar</button>
+            <button type="submit" class="btn-submit-sm"
+              [disabled]="!rf.valid || !nomeValido || !passwordsIguais || loadingRegisto()">
+              {{ loadingRegisto() ? 'A criar conta...' : 'Criar Conta' }}
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+}
+
 <div class="login-page">
   <div class="login-left">
     <div class="login-brand">
@@ -41,26 +147,14 @@
       <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
         <div class="form-group">
           <label for="email">Email institucional</label>
-          <input
-            id="email"
-            type="email"
-            [(ngModel)]="email"
-            name="email"
-            required
-            placeholder="utilizador@hospital.pt"
-          />
+          <input id="email" type="email" [(ngModel)]="email" name="email" required
+            placeholder="utilizador@hospital.pt"/>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            [(ngModel)]="password_hash"
-            name="password_hash"
-            required
-            placeholder="••••••••"
-          />
+          <input id="password" type="password" [(ngModel)]="password_hash" name="password_hash" required
+            placeholder="••••••••"/>
         </div>
 
         @if (erro()) {
@@ -72,6 +166,19 @@
         </button>
       </form>
 
+      <div class="login-divider">
+        <span class="ql-line"></span>
+        <span class="ql-text">ou</span>
+        <span class="ql-line"></span>
+      </div>
+
+      <button type="button" class="btn-registar" (click)="abrirRegisto()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+        </svg>
+        Criar nova conta
+      </button>
+
       <div class="quick-login-section">
         <div class="quick-login-label">
           <span class="ql-line"></span>
@@ -80,13 +187,8 @@
         </div>
         <div class="quick-login-btns">
           @for (u of quickUsers; track u.email) {
-            <button
-              type="button"
-              class="btn-quick"
-              [class]="'btn-quick btn-quick--' + u.color"
-              [disabled]="loading()"
-              (click)="quickLogin(u)"
-            >
+            <button type="button" class="btn-quick" [class]="'btn-quick btn-quick--' + u.color"
+              [disabled]="loading()" (click)="quickLogin(u)">
               <span class="ql-role">{{ u.label }}</span>
               <span class="ql-email">{{ u.email }}</span>
             </button>

@@ -2,11 +2,11 @@
   <div class="page-header">
     <div class="page-title">
       @if (auth.role() === 'auxiliar_limpeza') {
-        <h1>Camas para Higienizar</h1>
-        <p>Camas sinalizadas como Suja ou A Aguardar</p>
+        <h1>Higienização de Camas</h1>
+        <p>Gerir o processo de limpeza das camas</p>
       } @else {
         <h1>Estado das Camas</h1>
-        <p>Monitorização e higienização das camas hospitalares</p>
+        <p>Monitorização do estado de ocupação e limpeza</p>
       }
     </div>
     <button class="btn-refresh" (click)="carregar()">
@@ -17,6 +17,7 @@
     </button>
   </div>
 
+  <!-- Filtros (apenas para enfermeiro/admin) -->
   @if (auth.role() !== 'auxiliar_limpeza') {
     <div class="stats-row">
       <button class="stat-chip" [class.active]="filtro() === 'todas'" (click)="filtro.set('todas')">
@@ -35,6 +36,20 @@
         <span class="chip-num">{{ countHigienizar }}</span>
         <span class="chip-lbl">Para Higienizar</span>
       </button>
+    </div>
+  }
+
+  <!-- Legenda para auxiliar -->
+  @if (auth.role() === 'auxiliar_limpeza') {
+    <div class="legenda-box">
+      <div class="legenda-item">
+        <span class="badge badge-suja">Suja</span>
+        <span>→ Clique em <strong>Iniciar</strong> para começar a limpeza</span>
+      </div>
+      <div class="legenda-item">
+        <span class="badge badge-aguardar">A Aguardar</span>
+        <span>→ Limpeza em curso — clique em <strong>Concluir</strong> quando terminar</span>
+      </div>
     </div>
   }
 
@@ -67,37 +82,37 @@
               <td>{{ nomeQuarto(cama) }}</td>
               <td class="text-muted">{{ nomeAndar(cama) }}</td>
               @if (auth.role() !== 'auxiliar_limpeza') {
-                <td class="text-muted">{{ cama.ultimo_limpador ? $any(cama.ultimo_limpador)?.nome_completo ?? '—' : '—' }}</td>
+                <td class="text-muted">
+                  {{ $any(cama.ultimo_limpador)?.nome_completo ?? '—' }}
+                </td>
               }
               <td class="actions-cell">
-                @if ((auth.role() === 'auxiliar_limpeza' || auth.role() === 'admin') &&
-                     (cama.estado_limpeza === 'Suja' || cama.estado_limpeza === 'A Aguardar')) {
-                  <button class="btn-sm btn-higienizar" (click)="higienizar(cama._id)">
+                <!-- Auxiliar: Suja → Iniciar limpeza -->
+                @if ((auth.role() === 'auxiliar_limpeza' || auth.role() === 'admin') && cama.estado_limpeza === 'Suja') {
+                  <button class="btn-sm btn-iniciar" (click)="iniciarLimpeza(cama._id)">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+                    </svg>
+                    Iniciar
+                  </button>
+                }
+                <!-- Auxiliar: A Aguardar → Concluir limpeza -->
+                @if ((auth.role() === 'auxiliar_limpeza' || auth.role() === 'admin') && cama.estado_limpeza === 'A Aguardar') {
+                  <button class="btn-sm btn-concluir" (click)="concluirLimpeza(cama._id)">
                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Higienizar
-                  </button>
-                }
-                @if ((auth.role() === 'enfermeiro_gestor' || auth.role() === 'admin') &&
-                     cama.estado_limpeza === 'Suja') {
-                  <button class="btn-sm btn-aguardar" (click)="aguardar(cama._id)">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    A Aguardar
+                    Concluir
                   </button>
                 }
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="empty">
-                @if (filtro() === 'higienizar') {
-                  Sem camas para higienizar.
-                } @else {
-                  Sem camas registadas.
-                }
+              <td [attr.colspan]="auth.role() === 'auxiliar_limpeza' ? 6 : 7" class="empty">
+                @if (filtro() === 'higienizar') { Sem camas para higienizar. }
+                @else if (filtro() === 'livres') { Sem camas livres e limpas. }
+                @else { Sem camas registadas. }
               </td>
             </tr>
           }

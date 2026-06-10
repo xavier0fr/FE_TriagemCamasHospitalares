@@ -2,7 +2,7 @@
   <div class="page-header">
     <div class="page-title">
       <h1>Utilizadores</h1>
-      <p>Gestão de contas e acessos ao sistema</p>
+      <p>Gestão de enfermeiros e auxiliares de limpeza</p>
     </div>
     <button class="btn-primary" (click)="abrirCriar()">+ Registar Utilizador</button>
   </div>
@@ -11,53 +11,69 @@
     <div class="modal-overlay" (click)="fecharModal()">
       <div class="modal" (click)="$event.stopPropagation()">
         <h2>{{ modal() === 'editar' ? 'Editar Utilizador' : 'Registar Novo Utilizador' }}</h2>
+
         <form (ngSubmit)="modal() === 'editar' ? submeterEditar() : submeter()" #f="ngForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Nome Completo</label>
-              <input type="text" [(ngModel)]="form.nome_completo" name="nome" required/>
-            </div>
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" [(ngModel)]="form.email" name="email" required placeholder="email@hospital.pt"/>
-            </div>
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" [(ngModel)]="form.nome_completo" name="nome" required
+              placeholder="Ex: João Silva"
+              [class.input-error]="form.nome_completo && !nomeValido"/>
+            @if (form.nome_completo && !nomeValido) {
+              <span class="field-error">O nome não pode conter números (mín. 3 caracteres).</span>
+            }
           </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="form.email" name="email" required placeholder="email@hospital.pt"/>
+          </div>
+
           @if (modal() === 'criar') {
             <div class="form-group">
               <label>Password</label>
-              <input type="password" [(ngModel)]="form.password_hash" name="password" required placeholder="••••••••"/>
+              <input type="password" [(ngModel)]="form.password_hash" name="password" required
+                placeholder="Mín. 6 caracteres" minlength="6"/>
             </div>
           }
-          <div class="form-row">
+
+          <div class="form-group">
+            <label>Tipo de Utilizador</label>
+            <select [(ngModel)]="form.tipo_utilizador" name="tipo" required>
+              <option value="">Selecionar...</option>
+              <option value="enfermeiro_gestor">Enfermeiro Gestor</option>
+              <option value="auxiliar_limpeza">Auxiliar de Limpeza</option>
+            </select>
+          </div>
+
+          <!-- Cédula: apenas para enfermeiro -->
+          @if (mostrarCedula) {
             <div class="form-group">
-              <label>Tipo de Utilizador</label>
-              <select [(ngModel)]="form.tipo_utilizador" name="tipo" required>
-                <option value="">Selecionar...</option>
-                <option value="enfermeiro_gestor">Enfermeiro Gestor</option>
-                <option value="auxiliar_limpeza">Auxiliar de Limpeza</option>
-                <option value="admin">Administrador</option>
-              </select>
+              <label>Cédula Profissional</label>
+              <input type="text" [(ngModel)]="form.cedula_profissional" name="cedula"
+                placeholder="Ex: CP-123456"/>
             </div>
+          }
+
+          <!-- Turno: apenas para auxiliar -->
+          @if (mostrarTurno) {
             <div class="form-group">
               <label>Turno de Trabalho</label>
               <select [(ngModel)]="form.turno_trabalho" name="turno">
-                <option value="">—</option>
+                <option value="">Selecionar...</option>
                 <option value="Manhã">Manhã</option>
                 <option value="Tarde">Tarde</option>
                 <option value="Noite">Noite</option>
               </select>
             </div>
-          </div>
-          <div class="form-group">
-            <label>Cédula Profissional</label>
-            <input type="text" [(ngModel)]="form.cedula_profissional" name="cedula" placeholder="CP-000000"/>
-          </div>
+          }
+
           @if (erro()) {
             <div class="form-error-msg">{{ erro() }}</div>
           }
+
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!f.valid">
+            <button type="submit" class="btn-primary" [disabled]="!f.valid || !nomeValido">
               {{ modal() === 'editar' ? 'Guardar' : 'Registar' }}
             </button>
           </div>
