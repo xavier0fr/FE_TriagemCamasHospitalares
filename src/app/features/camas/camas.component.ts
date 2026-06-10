@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CamaService } from '../../core/services/cama.service';
+import { PrioridadeService, Prioridade } from '../../core/services/prioridade.service';
 import { Cama, Quarto } from '../../core/models/cama.model';
 
 @Component({
@@ -12,6 +13,7 @@ import { Cama, Quarto } from '../../core/models/cama.model';
 })
 export class CamasComponent implements OnInit {
   camas = signal<Cama[]>([]);
+  prioridades = signal<Prioridade[]>([]);
   loading = signal(true);
   erro = signal<string | null>(null);
   filtro = signal<'todas' | 'livres' | 'ocupadas' | 'higienizar'>('todas');
@@ -26,7 +28,16 @@ export class CamasComponent implements OnInit {
     });
   });
 
-  constructor(public auth: AuthService, private camaService: CamaService) {}
+  // IDs das camas com prioridade ativa
+  camasComPrioridade = computed(() =>
+    new Set(this.prioridades().map(p => typeof p.cama === 'object' ? p.cama._id : p.cama))
+  );
+
+  constructor(
+    public auth: AuthService,
+    private camaService: CamaService,
+    private prioridadeService: PrioridadeService
+  ) {}
 
   ngOnInit() {
     this.carregar();
@@ -42,6 +53,10 @@ export class CamasComponent implements OnInit {
       next: c => { this.camas.set(c); this.loading.set(false); },
       error: () => { this.erro.set('Erro ao carregar camas.'); this.loading.set(false); }
     });
+    this.prioridadeService.getAtivas().subscribe({
+      next: p => this.prioridades.set(p),
+      error: () => {}
+    });
   }
 
   iniciarLimpeza(id: string) {
@@ -53,9 +68,58 @@ export class CamasComponent implements OnInit {
 
   concluirLimpeza(id: string) {
     this.camaService.higienizar(id).subscribe({
-      next: () => this.carregar(),
+      next: () => {
+        // Dispensar prioridade associada a esta cama (se existir)
+        const prioridade = this.prioridades().find(p => {
+          const camaId = typeof p.cama === 'object' ? p.cama._id : p.cama;
+          return camaId === id;
+        });
+        if (prioridade) {
+          this.prioridadeService.dispensar(prioridade._id).subscribe();
+        }
+        this.carregar();
+      },
       error: (e) => this.erro.set(e.error?.error ?? 'Não foi possível concluir a limpeza.')
     });
+  }
+
+  marcarPrioridade(camaId: string) {
+    this.erro.set(null);
+    this.prioridadeService.criar(camaId).subscribe({
+      next: () => this.carregar(),
+      error: (e) => this.erro.set(e.error?.error ?? 'Erro ao marcar prioridade.')
+    });
+  }
+
+  dispensarPrioridade(camaId: string) {
+    const prioridade = this.prioridades().find(p => {
+      const id = typeof p.cama === 'object' ? p.cama._id : p.cama;
+      return id === camaId;
+    });
+    if (!prioridade) return;
+    this.prioridadeService.dispensar(prioridade._id).subscribe({
+      next: () => this.carregar(),
+      error: () => {}
+    });
+  }
+
+  temPrioridade(camaId: string): boolean {
+    return this.camasComPrioridade().has(camaId);
+  }
+
+  // Prioridade para o auxiliar ver (incluindo dados da cama)
+  prioridadesDaCama(camaId: string): Prioridade | undefined {
+    return this.prioridades().find(p => {
+      const id = typeof p.cama === 'object' ? p.cama._id : p.cama;
+      return id === camaId;
+    });
+  }
+
+  // Cama livre mas suja → linha amarela
+  rowClass(cama: Cama): string {
+    if (cama.estado_ocupacao === 'Livre' && cama.estado_limpeza === 'Suja') return 'row-suja-livre';
+    if (cama.estado_limpeza === 'Suja' && this.temPrioridade(cama._id)) return 'row-prioridade';
+    return '';
   }
 
   badgeOcupacao(estado: string) {
@@ -92,4 +156,5 @@ export class CamasComponent implements OnInit {
   get countLivres()     { return this.camas().filter(c => c.estado_ocupacao === 'Livre' && c.estado_limpeza === 'Limpa').length; }
   get countOcupadas()   { return this.camas().filter(c => c.estado_ocupacao === 'Ocupada').length; }
   get countHigienizar() { return this.camas().filter(c => c.estado_limpeza === 'Suja' || c.estado_limpeza === 'A Aguardar').length; }
+  get countPrioridades() { return this.prioridades().length; }
 }

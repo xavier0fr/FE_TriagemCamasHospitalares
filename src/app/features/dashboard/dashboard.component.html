@@ -105,7 +105,8 @@
       }
     </div>
 
-    <!-- Barras de estado de limpeza -->
+    <!-- Barras de estado de limpeza (não visível para enfermeiros) -->
+    @if (auth.role() !== 'enfermeiro_gestor') {
     <div class="chart-card chart-card--grow">
       <p class="chart-title">Estado de Limpeza</p>
       @if (totalCamas > 0) {
@@ -157,6 +158,7 @@
         <p class="chart-empty">Sem camas registadas.</p>
       }
     </div>
+    } <!-- fim @if enfermeiro_gestor -->
   </div>
 
   <!-- Internamentos recentes + acesso rápido -->

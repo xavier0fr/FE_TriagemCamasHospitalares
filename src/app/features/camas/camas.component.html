@@ -39,6 +39,17 @@
     </div>
   }
 
+  <!-- Notificações de prioridade para auxiliares -->
+  @if (auth.role() === 'auxiliar_limpeza' && countPrioridades > 0) {
+    <div class="prioridade-banner">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      </svg>
+      <strong>{{ countPrioridades }} cama(s) com limpeza prioritária</strong>
+      <span class="prioridade-hint">— assinaladas com ⚡ na tabela</span>
+    </div>
+  }
+
   <!-- Legenda para auxiliar -->
   @if (auth.role() === 'auxiliar_limpeza') {
     <div class="legenda-box">
@@ -49,6 +60,10 @@
       <div class="legenda-item">
         <span class="badge badge-aguardar">A Aguardar</span>
         <span>→ Limpeza em curso — clique em <strong>Concluir</strong> quando terminar</span>
+      </div>
+      <div class="legenda-item">
+        <span class="prioridade-tag">⚡ Prioritária</span>
+        <span>→ Pedido de limpeza urgente pelo enfermeiro</span>
       </div>
     </div>
   }
@@ -71,6 +86,7 @@
             <th>Andar</th>
             @if (auth.role() !== 'auxiliar_limpeza') {
               <th>Última Limpeza Por</th>
+              <th>Ações</th>
             }
             @if (auth.role() === 'auxiliar_limpeza') {
               <th>Ações</th>
@@ -79,24 +95,52 @@
         </thead>
         <tbody>
           @for (cama of camasFiltradas(); track cama._id) {
-            <tr>
-              <td><strong>{{ cama.codigo_cama }}</strong></td>
+            <tr [class]="rowClass(cama)">
+              <td>
+                <strong>{{ cama.codigo_cama }}</strong>
+                @if (temPrioridade(cama._id)) {
+                  <span class="prioridade-tag" title="Limpeza prioritária">⚡</span>
+                }
+              </td>
               <td><span class="badge" [class]="badgeOcupacao(cama.estado_ocupacao)">{{ cama.estado_ocupacao }}</span></td>
               <td><span class="badge" [class]="badgeLimpeza(cama.estado_limpeza)">{{ cama.estado_limpeza }}</span></td>
               <td>{{ nomeQuarto(cama) }}</td>
               <td class="text-muted">{{ nomeAndar(cama) }}</td>
+
+              <!-- Coluna para enfermeiro/admin -->
               @if (auth.role() !== 'auxiliar_limpeza') {
                 <td class="text-muted">{{ ultimoLimpador(cama) }}</td>
+                <td class="actions-cell">
+                  @if (cama.estado_limpeza === 'Suja') {
+                    @if (!temPrioridade(cama._id)) {
+                      <button class="btn-sm btn-prioridade" (click)="marcarPrioridade(cama._id)" title="Sinalizar limpeza urgente aos auxiliares">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                        </svg>
+                        Prioritária
+                      </button>
+                    } @else {
+                      <button class="btn-sm btn-prioridade-cancel" (click)="dispensarPrioridade(cama._id)" title="Cancelar prioridade">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cancelar Prioridade
+                      </button>
+                    }
+                  }
+                </td>
               }
+
+              <!-- Coluna para auxiliar -->
               @if (auth.role() === 'auxiliar_limpeza') {
                 <td class="actions-cell">
                   <!-- Suja → Iniciar limpeza -->
                   @if (cama.estado_limpeza === 'Suja') {
-                    <button class="btn-sm btn-iniciar" (click)="iniciarLimpeza(cama._id)">
+                    <button class="btn-sm btn-iniciar" [class.btn-iniciar--prioridade]="temPrioridade(cama._id)" (click)="iniciarLimpeza(cama._id)">
                       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
                       </svg>
-                      Iniciar
+                      @if (temPrioridade(cama._id)) { ⚡ Iniciar (Urgente) } @else { Iniciar }
                     </button>
                   }
                   <!-- A Aguardar → Concluir (apenas quem iniciou) -->
@@ -117,7 +161,7 @@
             </tr>
           } @empty {
             <tr>
-              <td [attr.colspan]="auth.role() === 'auxiliar_limpeza' ? 6 : 6" class="empty">
+              <td colspan="7" class="empty">
                 @if (filtro() === 'higienizar') { Sem camas para higienizar. }
                 @else if (filtro() === 'livres') { Sem camas livres e limpas. }
                 @else { Sem camas registadas. }
