@@ -34,6 +34,17 @@ export class UtilizadoresComponent implements OnInit {
   get mostrarCedula(): boolean { return this.form.tipo_utilizador === 'enfermeiro_gestor'; }
   get mostrarTurno(): boolean  { return this.form.tipo_utilizador === 'auxiliar_limpeza'; }
 
+  onTipoChange() {
+    if (this.form.tipo_utilizador === 'enfermeiro_gestor') {
+      this.form.turno_trabalho = '';
+    } else if (this.form.tipo_utilizador === 'auxiliar_limpeza') {
+      this.form.cedula_profissional = '';
+    } else {
+      this.form.cedula_profissional = '';
+      this.form.turno_trabalho = '';
+    }
+  }
+
   get nomeValido(): boolean {
     return /^[^\d]+$/.test(this.form.nome_completo.trim()) && this.form.nome_completo.trim().length >= 3;
   }

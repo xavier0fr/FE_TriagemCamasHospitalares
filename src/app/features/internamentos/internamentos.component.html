@@ -9,6 +9,22 @@
     }
   </div>
 
+  <!-- Modal confirmação alta -->
+  @if (modalConf()) {
+    <div class="modal-overlay" (click)="modalConf.set(null)">
+      <div class="modal modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Confirmar ação</h2>
+        </div>
+        <p class="conf-msg">{{ modalConf()!.msg }}</p>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="modalConf.set(null)">Cancelar</button>
+          <button class="btn-danger" (click)="modalConf()!.fn(); modalConf.set(null)">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (mostrarFormulario()) {
     <div class="modal-overlay" (click)="mostrarFormulario.set(false)">
       <div class="modal modal-lg" (click)="$event.stopPropagation()">

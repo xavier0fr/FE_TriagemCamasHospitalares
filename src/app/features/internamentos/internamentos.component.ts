@@ -25,6 +25,7 @@ export class InternamentosComponent implements OnInit {
   especialidades = signal<Especialidade[]>([]);
   loading = signal(true);
   mostrarFormulario = signal(false);
+  modalConf = signal<{ msg: string; fn: () => void } | null>(null);
   sugestao = signal<any | null>(null);
   sugestaoLoading = signal(false);
   sugestaoEspecialidade = signal('');
@@ -103,9 +104,10 @@ export class InternamentosComponent implements OnInit {
   }
 
   darAlta(id: string) {
-    if (confirm('Confirmar alta do doente? A cama ficará sinalizada para higienização.')) {
-      this.internamentoService.darAlta(id).subscribe(() => this.carregar());
-    }
+    this.modalConf.set({
+      msg: 'Confirmar alta do doente? A cama ficará sinalizada para higienização.',
+      fn: () => this.internamentoService.darAlta(id).subscribe(() => this.carregar())
+    });
   }
 
   nomeDoente(i: Internamento): string {

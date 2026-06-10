@@ -58,7 +58,7 @@
 
           <div class="form-group">
             <label>Tipo de Utilizador</label>
-            <select [(ngModel)]="form.tipo_utilizador" name="tipo" required>
+            <select [(ngModel)]="form.tipo_utilizador" name="tipo" required (ngModelChange)="onTipoChange()">
               <option value="">Selecionar...</option>
               <option value="enfermeiro_gestor">Enfermeiro Gestor</option>
               <option value="auxiliar_limpeza">Auxiliar de Limpeza</option>
