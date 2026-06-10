@@ -8,6 +8,7 @@ export interface Utilizador {
   tipo_utilizador: string;
   cedula_profissional?: string;
   turno_trabalho?: string;
+  aprovado?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -20,6 +21,10 @@ export class UserService {
     return this.http.get<Utilizador[]>('/api/users');
   }
 
+  getPendentes() {
+    return this.http.get<Utilizador[]>('/api/users/pendentes');
+  }
+
   getById(id: string) {
     return this.http.get<Utilizador>(`/api/users/${id}`);
   }
@@ -28,8 +33,17 @@ export class UserService {
     return this.http.get<Utilizador>('/api/users/me');
   }
 
+  /** Admin cria utilizador aprovado automaticamente */
   criar(data: Omit<Utilizador, '_id'> & { password_hash: string }) {
-    return this.http.post<Utilizador>('/api/users/register', data);
+    return this.http.post<Utilizador>('/api/users/criar', data);
+  }
+
+  aprovar(id: string) {
+    return this.http.put<Utilizador>(`/api/users/pendentes/${id}/aprovar`, {});
+  }
+
+  rejeitarPendente(id: string) {
+    return this.http.delete<{ message: string }>(`/api/users/pendentes/${id}`);
   }
 
   update(id: string, data: Partial<Omit<Utilizador, '_id'>>) {

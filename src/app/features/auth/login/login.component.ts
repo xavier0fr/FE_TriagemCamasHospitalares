@@ -81,8 +81,8 @@ export class LoginComponent {
     this.loading.set(true);
     this.auth.login({ email: this.email, password_hash: this.password_hash }).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: () => {
-        this.erro.set('Email ou password incorretos.');
+      error: (e) => {
+        this.erro.set(e.error?.error ?? 'Email ou password incorretos.');
         this.loading.set(false);
       }
     });

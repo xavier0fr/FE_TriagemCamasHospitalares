@@ -7,6 +7,19 @@
     <button class="btn-primary" (click)="abrirCriar()">+ Novo Doente</button>
   </div>
 
+  <!-- Modal confirmação -->
+  @if (modalConf()) {
+    <div class="modal-overlay" (click)="modalConf.set(null)">
+      <div class="modal modal-sm" (click)="$event.stopPropagation()">
+        <p class="conf-msg">{{ modalConf()!.msg }}</p>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="modalConf.set(null)">Cancelar</button>
+          <button class="btn-danger" (click)="modalConf()!.fn(); modalConf.set(null)">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (modal()) {
     <div class="modal-overlay" (click)="fecharModal()">
       <div class="modal" (click)="$event.stopPropagation()">
@@ -46,11 +59,14 @@
 
           <div class="form-group">
             <label>Contacto de Emergência</label>
-            <input type="tel" [(ngModel)]="form.contacto_emergencia" name="contacto" required
-              placeholder="+351 912 345 678"
-              [class.input-error]="form.contacto_emergencia && !contactoValido"/>
-            @if (form.contacto_emergencia && !contactoValido) {
-              <span class="field-error">Introduza um número de contacto válido (mín. 9 dígitos).</span>
+            <div class="phone-group" [class.phone-error]="telefoneSufixo && !contactoValido">
+              <span class="phone-prefix">+351</span>
+              <input type="tel" [(ngModel)]="telefoneSufixo" name="contacto" required
+                placeholder="912 345 678" maxlength="9"
+                (input)="telefoneSufixo = telefoneSufixo.replace(/\D/g,'').slice(0,9)"/>
+            </div>
+            @if (telefoneSufixo && !contactoValido) {
+              <span class="field-error">Introduza exatamente 9 dígitos após o +351.</span>
             }
           </div>
 

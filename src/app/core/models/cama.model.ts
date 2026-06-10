@@ -7,7 +7,8 @@ export interface Cama {
   estado_ocupacao: EstadoOcupacao;
   estado_limpeza: EstadoLimpeza;
   quarto: string | Quarto;
-  ultimo_limpador?: string;
+  ultimo_limpador?: string | { nome_completo: string };
+  iniciado_por?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -4,7 +4,9 @@
       <h1>Internamentos Ativos</h1>
       <p>Gestão de internamentos e altas hospitalares</p>
     </div>
-    <button class="btn-primary" (click)="abrirFormulario()">+ Novo Internamento</button>
+    @if (auth.role() !== 'admin') {
+      <button class="btn-primary" (click)="abrirFormulario()">+ Novo Internamento</button>
+    }
   </div>
 
   @if (mostrarFormulario()) {
@@ -16,6 +18,8 @@
         </div>
 
         <form (ngSubmit)="submeter()" #f="ngForm">
+
+          <!-- 1. Doente -->
           <div class="form-group">
             <label>Doente</label>
             <select [(ngModel)]="form.doente" name="doente" required>
@@ -26,7 +30,13 @@
             </select>
           </div>
 
-          <!-- Sugestão automática de cama -->
+          <!-- 2. Motivo -->
+          <div class="form-group">
+            <label>Motivo de Internamento</label>
+            <textarea [(ngModel)]="form.motivo_internamento" name="motivo" required rows="3" placeholder="Descreva o motivo do internamento..."></textarea>
+          </div>
+
+          <!-- 3. Sugestão automática -->
           <div class="sugestao-box">
             <div class="sugestao-header">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -60,6 +70,7 @@
             }
           </div>
 
+          <!-- 4. Cama -->
           <div class="form-group">
             <label>Cama (Livre e Limpa)</label>
             <select [(ngModel)]="form.cama" name="cama" required>
@@ -70,10 +81,9 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label>Motivo de Internamento</label>
-            <textarea [(ngModel)]="form.motivo_internamento" name="motivo" required rows="3" placeholder="Descreva o motivo do internamento..."></textarea>
-          </div>
+          @if (erroForm()) {
+            <div class="form-error-msg">{{ erroForm() }}</div>
+          }
 
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="mostrarFormulario.set(false)">Cancelar</button>
@@ -100,7 +110,9 @@
             <th>Quarto</th>
             <th>Motivo</th>
             <th>Entrada</th>
-            <th>Ações</th>
+            @if (auth.role() !== 'admin') {
+              <th>Ações</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -112,17 +124,19 @@
               <td class="text-muted">{{ quartoInfo(i) }}</td>
               <td class="motivo-cell">{{ i.motivo_internamento }}</td>
               <td class="text-muted">{{ i.data_hora_entrada | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td>
-                <button class="btn-sm btn-danger" (click)="darAlta(i._id)">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-                  </svg>
-                  Dar Alta
-                </button>
-              </td>
+              @if (auth.role() !== 'admin') {
+                <td>
+                  <button class="btn-sm btn-danger" (click)="darAlta(i._id)">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+                    </svg>
+                    Dar Alta
+                  </button>
+                </td>
+              }
             </tr>
           } @empty {
-            <tr><td colspan="7" class="empty">Sem internamentos ativos.</td></tr>
+            <tr><td [attr.colspan]="auth.role() === 'admin' ? 6 : 7" class="empty">Sem internamentos ativos.</td></tr>
           }
         </tbody>
       </table>

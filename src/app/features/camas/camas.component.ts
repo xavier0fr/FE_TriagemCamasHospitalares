@@ -37,20 +37,25 @@ export class CamasComponent implements OnInit {
 
   carregar() {
     this.loading.set(true);
+    this.erro.set(null);
     this.camaService.getAll().subscribe({
       next: c => { this.camas.set(c); this.loading.set(false); },
       error: () => { this.erro.set('Erro ao carregar camas.'); this.loading.set(false); }
     });
   }
 
-  // Auxiliar: Suja → A Aguardar (inicia limpeza)
   iniciarLimpeza(id: string) {
-    this.camaService.aguardar(id).subscribe(() => this.carregar());
+    this.camaService.aguardar(id).subscribe({
+      next: () => this.carregar(),
+      error: (e) => this.erro.set(e.error?.error ?? 'Erro ao iniciar limpeza.')
+    });
   }
 
-  // Auxiliar: A Aguardar → Limpa (conclui limpeza)
   concluirLimpeza(id: string) {
-    this.camaService.higienizar(id).subscribe(() => this.carregar());
+    this.camaService.higienizar(id).subscribe({
+      next: () => this.carregar(),
+      error: (e) => this.erro.set(e.error?.error ?? 'Não foi possível concluir a limpeza.')
+    });
   }
 
   badgeOcupacao(estado: string) {
@@ -58,8 +63,8 @@ export class CamasComponent implements OnInit {
   }
 
   badgeLimpeza(estado: string) {
-    if (estado === 'Limpa')      return 'badge-limpa';
-    if (estado === 'Suja')       return 'badge-suja';
+    if (estado === 'Limpa')  return 'badge-limpa';
+    if (estado === 'Suja')   return 'badge-suja';
     return 'badge-aguardar';
   }
 
@@ -74,6 +79,13 @@ export class CamasComponent implements OnInit {
       if (typeof q.andar === 'object' && q.andar)
         return `Piso ${(q.andar as any).numero_piso} — ${(q.andar as any).nome_ala}`;
     }
+    return '—';
+  }
+
+  ultimoLimpador(cama: Cama): string {
+    const ul = cama.ultimo_limpador;
+    if (!ul) return '—';
+    if (typeof ul === 'object') return (ul as any).nome_completo ?? '—';
     return '—';
   }
 

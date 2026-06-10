@@ -17,14 +17,16 @@ export class DoenteComponent implements OnInit {
   modal = signal<'criar' | 'editar' | null>(null);
   editId = signal('');
   erro = signal<string | null>(null);
+  modalConf = signal<{ msg: string; fn: () => void } | null>(null);
 
-  form: Partial<Doente> & { confirmar?: string } = {
+  form: Partial<Doente> = {
     numero_sns: '', nome_completo: '', data_nascimento: '', contacto_emergencia: ''
   };
 
-  // Data máxima = hoje
+  // Campo separado para os 9 dígitos do telemóvel (sem o +351)
+  telefoneSufixo = '';
+
   readonly hoje = new Date().toISOString().substring(0, 10);
-  // Data mínima = 120 anos atrás
   readonly dataMin = new Date(new Date().getFullYear() - 120, 0, 1).toISOString().substring(0, 10);
 
   get nomeValido(): boolean {
@@ -41,8 +43,7 @@ export class DoenteComponent implements OnInit {
   }
 
   get contactoValido(): boolean {
-    // Aceita formato: +351 XXX XXX XXX, 9XXXXXXXX, ou similar com 9+ dígitos
-    return /^[\d\s\+\-\(\)]{9,20}$/.test(this.form.contacto_emergencia ?? '');
+    return /^\d{9}$/.test(this.telefoneSufixo);
   }
 
   get formValido(): boolean {
@@ -63,6 +64,7 @@ export class DoenteComponent implements OnInit {
 
   abrirCriar() {
     this.form = { numero_sns: '', nome_completo: '', data_nascimento: '', contacto_emergencia: '' };
+    this.telefoneSufixo = '';
     this.erro.set(null);
     this.modal.set('criar');
   }
@@ -75,6 +77,10 @@ export class DoenteComponent implements OnInit {
       data_nascimento: d.data_nascimento?.substring(0, 10),
       contacto_emergencia: d.contacto_emergencia
     };
+    // Extrair os 9 dígitos do número guardado
+    const tel = d.contacto_emergencia ?? '';
+    const digits = tel.replace(/\D/g, '');
+    this.telefoneSufixo = digits.length >= 9 ? digits.slice(-9) : digits;
     this.erro.set(null);
     this.modal.set('editar');
   }
@@ -82,7 +88,8 @@ export class DoenteComponent implements OnInit {
   submeter() {
     this.erro.set(null);
     if (!this.formValido) { this.erro.set('Verifique os campos assinalados.'); return; }
-    this.doenteService.create(this.form).subscribe({
+    const payload = { ...this.form, contacto_emergencia: '+351' + this.telefoneSufixo };
+    this.doenteService.create(payload).subscribe({
       next: () => { this.modal.set(null); this.carregar(); },
       error: (e) => this.erro.set(e.error?.error ?? 'Erro ao registar doente.')
     });
@@ -91,15 +98,18 @@ export class DoenteComponent implements OnInit {
   submeterEditar() {
     this.erro.set(null);
     if (!this.formValido) { this.erro.set('Verifique os campos assinalados.'); return; }
-    this.doenteService.update(this.editId(), this.form).subscribe({
+    const payload = { ...this.form, contacto_emergencia: '+351' + this.telefoneSufixo };
+    this.doenteService.update(this.editId(), payload).subscribe({
       next: () => { this.modal.set(null); this.carregar(); },
       error: (e) => this.erro.set(e.error?.error ?? 'Erro ao editar doente.')
     });
   }
 
   apagar(d: Doente) {
-    if (!confirm(`Apagar o doente "${d.nome_completo}" (SNS: ${d.numero_sns})?`)) return;
-    this.doenteService.delete(d._id).subscribe(() => this.carregar());
+    this.modalConf.set({
+      msg: `Apagar o doente "${d.nome_completo}" (SNS: ${d.numero_sns})? Esta ação não pode ser desfeita.`,
+      fn: () => this.doenteService.delete(d._id).subscribe(() => this.carregar())
+    });
   }
 
   fecharModal() { this.modal.set(null); this.erro.set(null); }

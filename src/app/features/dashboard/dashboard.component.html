@@ -19,17 +19,19 @@
         <p class="stat-label">Livres e Limpas</p>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon stat-red">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-        </svg>
+    @if (auth.role() !== 'enfermeiro_gestor') {
+      <div class="stat-card">
+        <div class="stat-icon stat-red">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+          </svg>
+        </div>
+        <div>
+          <p class="stat-value">{{ camasOcupadas }}</p>
+          <p class="stat-label">Ocupadas</p>
+        </div>
       </div>
-      <div>
-        <p class="stat-value">{{ camasOcupadas }}</p>
-        <p class="stat-label">Ocupadas</p>
-      </div>
-    </div>
+    }
     <div class="stat-card">
       <div class="stat-icon stat-yellow">
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">

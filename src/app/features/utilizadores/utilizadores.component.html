@@ -2,15 +2,35 @@
   <div class="page-header">
     <div class="page-title">
       <h1>Utilizadores</h1>
-      <p>Gestão de enfermeiros e auxiliares de limpeza</p>
+      <p>Gestão de utilizadores e aprovações de registo</p>
     </div>
     <button class="btn-primary" (click)="abrirCriar()">+ Registar Utilizador</button>
   </div>
 
+  <!-- Modal confirmação -->
+  @if (modalConf()) {
+    <div class="modal-overlay" (click)="modalConf.set(null)">
+      <div class="modal modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Confirmar ação</h2>
+        </div>
+        <p class="conf-msg">{{ modalConf()!.msg }}</p>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="modalConf.set(null)">Cancelar</button>
+          <button class="btn-danger" (click)="modalConf()!.fn(); modalConf.set(null)">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal criar/editar -->
   @if (modal()) {
     <div class="modal-overlay" (click)="fecharModal()">
       <div class="modal" (click)="$event.stopPropagation()">
-        <h2>{{ modal() === 'editar' ? 'Editar Utilizador' : 'Registar Novo Utilizador' }}</h2>
+        <div class="modal-header">
+          <h2>{{ modal() === 'editar' ? 'Editar Utilizador' : 'Registar Novo Utilizador' }}</h2>
+          <button class="btn-close" (click)="fecharModal()">✕</button>
+        </div>
 
         <form (ngSubmit)="modal() === 'editar' ? submeterEditar() : submeter()" #f="ngForm">
           <div class="form-group">
@@ -45,25 +65,31 @@
             </select>
           </div>
 
-          <!-- Cédula: apenas para enfermeiro -->
           @if (mostrarCedula) {
             <div class="form-group">
-              <label>Cédula Profissional</label>
+              <label>Cédula Profissional <span class="required">*</span></label>
               <input type="text" [(ngModel)]="form.cedula_profissional" name="cedula"
-                placeholder="Ex: CP-123456"/>
+                placeholder="Ex: CP-123456"
+                [class.input-error]="!cedulaValida && form.cedula_profissional !== undefined"/>
+              @if (!cedulaValida) {
+                <span class="field-error">A cédula profissional é obrigatória para enfermeiros.</span>
+              }
             </div>
           }
 
-          <!-- Turno: apenas para auxiliar -->
           @if (mostrarTurno) {
             <div class="form-group">
-              <label>Turno de Trabalho</label>
-              <select [(ngModel)]="form.turno_trabalho" name="turno">
+              <label>Turno de Trabalho <span class="required">*</span></label>
+              <select [(ngModel)]="form.turno_trabalho" name="turno"
+                [class.input-error]="!turnoValido">
                 <option value="">Selecionar...</option>
                 <option value="Manhã">Manhã</option>
                 <option value="Tarde">Tarde</option>
                 <option value="Noite">Noite</option>
               </select>
+              @if (!turnoValido) {
+                <span class="field-error">O turno de trabalho é obrigatório para auxiliares.</span>
+              }
             </div>
           }
 
@@ -73,7 +99,7 @@
 
           <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="fecharModal()">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!f.valid || !nomeValido">
+            <button type="submit" class="btn-primary" [disabled]="!f.valid || !formValido">
               {{ modal() === 'editar' ? 'Guardar' : 'Registar' }}
             </button>
           </div>
@@ -82,53 +108,132 @@
     </div>
   }
 
-  @if (loading()) {
-    <div class="loading-state">A carregar utilizadores...</div>
-  } @else {
-    <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Função</th>
-            <th>Cédula</th>
-            <th>Turno</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (u of utilizadores(); track u._id) {
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="aba() === 'utilizadores'" (click)="aba.set('utilizadores')">
+      Utilizadores
+      <span class="tab-count">{{ todosUtilizadores().length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="aba() === 'pendentes'" (click)="aba.set('pendentes')">
+      Aprovações Pendentes
+      @if (pendentes().length > 0) {
+        <span class="tab-count tab-count--alert">{{ pendentes().length }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- TAB: Lista de Utilizadores -->
+  @if (aba() === 'utilizadores') {
+    @if (loading()) {
+      <div class="loading-state">A carregar utilizadores...</div>
+    } @else {
+      <div class="card">
+        <table>
+          <thead>
             <tr>
-              <td><strong>{{ u.nome_completo }}</strong></td>
-              <td class="text-muted">{{ u.email }}</td>
-              <td>
-                <span class="role-badge" [class]="roleBadgeClass(u.tipo_utilizador)">
-                  {{ roleLabel(u.tipo_utilizador) }}
-                </span>
-              </td>
-              <td class="text-muted">{{ u.cedula_profissional || '—' }}</td>
-              <td class="text-muted">{{ u.turno_trabalho || '—' }}</td>
-              <td class="actions-cell">
-                <button class="btn-sm btn-outline" (click)="abrirEditar(u)">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-                  </svg>
-                  Editar
-                </button>
-                <button class="btn-sm btn-danger" (click)="apagar(u)">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                  </svg>
-                  Apagar
-                </button>
-              </td>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Função</th>
+              <th>Cédula</th>
+              <th>Turno</th>
+              <th>Ações</th>
             </tr>
-          } @empty {
-            <tr><td colspan="6" class="empty">Sem utilizadores registados.</td></tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (u of todosUtilizadores(); track u._id) {
+              <tr [class.row-admin]="ehAdmin(u)">
+                <td><strong>{{ u.nome_completo }}</strong></td>
+                <td class="text-muted">{{ u.email }}</td>
+                <td>
+                  <span class="role-badge" [class]="roleBadgeClass(u.tipo_utilizador)">
+                    {{ roleLabel(u.tipo_utilizador) }}
+                  </span>
+                </td>
+                <td class="text-muted">{{ u.cedula_profissional || '—' }}</td>
+                <td class="text-muted">{{ u.turno_trabalho || '—' }}</td>
+                <td class="actions-cell">
+                  @if (!ehAdmin(u)) {
+                    <button class="btn-sm btn-outline" (click)="abrirEditar(u)">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                      </svg>
+                      Editar
+                    </button>
+                    <button class="btn-sm btn-danger" (click)="apagar(u)">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                      </svg>
+                      Apagar
+                    </button>
+                  } @else {
+                    <span class="text-muted text-sm">—</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="empty">Sem utilizadores registados.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- TAB: Aprovações Pendentes -->
+  @if (aba() === 'pendentes') {
+    <div class="card">
+      @if (pendentes().length === 0) {
+        <div class="empty-state">
+          <svg width="40" height="40" fill="none" stroke="#94a3b8" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p>Sem pedidos de registo pendentes.</p>
+        </div>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Função</th>
+              <th>Cédula / Turno</th>
+              <th>Data do Pedido</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of pendentes(); track u._id) {
+              <tr>
+                <td><strong>{{ u.nome_completo }}</strong></td>
+                <td class="text-muted">{{ u.email }}</td>
+                <td>
+                  <span class="role-badge" [class]="roleBadgeClass(u.tipo_utilizador)">
+                    {{ roleLabel(u.tipo_utilizador) }}
+                  </span>
+                </td>
+                <td class="text-muted">
+                  {{ u.cedula_profissional || u.turno_trabalho || '—' }}
+                </td>
+                <td class="text-muted text-sm">{{ u.createdAt | slice:0:10 }}</td>
+                <td class="actions-cell">
+                  <button class="btn-sm btn-aprovar" (click)="aprovar(u)">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Aprovar
+                  </button>
+                  <button class="btn-sm btn-danger" (click)="rejeitar(u)">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Rejeitar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
   }
 </div>

@@ -1,25 +1,26 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, Utilizador } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-utilizadores',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, SlicePipe],
   templateUrl: './utilizadores.component.html',
   styleUrl: './utilizadores.component.scss'
 })
 export class UtilizadoresComponent implements OnInit {
   todosUtilizadores = signal<Utilizador[]>([]);
+  pendentes = signal<Utilizador[]>([]);
   loading = signal(true);
   modal = signal<'criar' | 'editar' | null>(null);
   erro = signal<string | null>(null);
   editId = signal('');
+  aba = signal<'utilizadores' | 'pendentes'>('utilizadores');
 
-  // Filtrar admins da lista (admins não gerem admins)
-  utilizadores = computed(() =>
-    this.todosUtilizadores().filter(u => u.tipo_utilizador !== 'admin')
-  );
+  // Modal de confirmação personalizado
+  modalConf = signal<{ msg: string; fn: () => void } | null>(null);
 
   form = {
     nome_completo: '',
@@ -30,14 +31,25 @@ export class UtilizadoresComponent implements OnInit {
     turno_trabalho: ''
   };
 
-  // Mostrar cédula apenas para enfermeiro
   get mostrarCedula(): boolean { return this.form.tipo_utilizador === 'enfermeiro_gestor'; }
-  // Mostrar turno apenas para auxiliar
-  get mostrarTurno(): boolean { return this.form.tipo_utilizador === 'auxiliar_limpeza'; }
+  get mostrarTurno(): boolean  { return this.form.tipo_utilizador === 'auxiliar_limpeza'; }
 
-  // Validar nome: sem números, mínimo 3 chars
   get nomeValido(): boolean {
     return /^[^\d]+$/.test(this.form.nome_completo.trim()) && this.form.nome_completo.trim().length >= 3;
+  }
+
+  get cedulaValida(): boolean {
+    if (!this.mostrarCedula) return true;
+    return this.form.cedula_profissional.trim().length >= 3;
+  }
+
+  get turnoValido(): boolean {
+    if (!this.mostrarTurno) return true;
+    return this.form.turno_trabalho !== '';
+  }
+
+  get formValido(): boolean {
+    return this.nomeValido && this.cedulaValida && this.turnoValido;
   }
 
   constructor(private userService: UserService) {}
@@ -49,6 +61,10 @@ export class UtilizadoresComponent implements OnInit {
     this.userService.getAll().subscribe({
       next: u => { this.todosUtilizadores.set(u); this.loading.set(false); },
       error: () => this.loading.set(false)
+    });
+    this.userService.getPendentes().subscribe({
+      next: p => this.pendentes.set(p),
+      error: () => {}
     });
   }
 
@@ -74,7 +90,9 @@ export class UtilizadoresComponent implements OnInit {
 
   submeter() {
     this.erro.set(null);
-    if (!this.nomeValido) { this.erro.set('O nome não pode conter números.'); return; }
+    if (!this.nomeValido) { this.erro.set('O nome não pode conter números (mín. 3 caracteres).'); return; }
+    if (!this.cedulaValida) { this.erro.set('A cédula profissional é obrigatória para enfermeiros.'); return; }
+    if (!this.turnoValido) { this.erro.set('O turno de trabalho é obrigatório para auxiliares.'); return; }
 
     const payload: any = {
       nome_completo: this.form.nome_completo.trim(),
@@ -82,7 +100,7 @@ export class UtilizadoresComponent implements OnInit {
       password_hash: this.form.password_hash,
       tipo_utilizador: this.form.tipo_utilizador,
     };
-    if (this.mostrarCedula) payload.cedula_profissional = this.form.cedula_profissional;
+    if (this.mostrarCedula) payload.cedula_profissional = this.form.cedula_profissional.trim();
     if (this.mostrarTurno)  payload.turno_trabalho = this.form.turno_trabalho;
 
     this.userService.criar(payload).subscribe({
@@ -93,14 +111,16 @@ export class UtilizadoresComponent implements OnInit {
 
   submeterEditar() {
     this.erro.set(null);
-    if (!this.nomeValido) { this.erro.set('O nome não pode conter números.'); return; }
+    if (!this.nomeValido) { this.erro.set('O nome não pode conter números (mín. 3 caracteres).'); return; }
+    if (!this.cedulaValida) { this.erro.set('A cédula profissional é obrigatória para enfermeiros.'); return; }
+    if (!this.turnoValido) { this.erro.set('O turno de trabalho é obrigatório para auxiliares.'); return; }
 
     const dados: any = {
       nome_completo: this.form.nome_completo.trim(),
       email: this.form.email.trim(),
       tipo_utilizador: this.form.tipo_utilizador,
     };
-    if (this.mostrarCedula) dados.cedula_profissional = this.form.cedula_profissional;
+    if (this.mostrarCedula) dados.cedula_profissional = this.form.cedula_profissional.trim();
     if (this.mostrarTurno)  dados.turno_trabalho = this.form.turno_trabalho;
 
     this.userService.update(this.editId(), dados).subscribe({
@@ -110,19 +130,41 @@ export class UtilizadoresComponent implements OnInit {
   }
 
   apagar(u: Utilizador) {
-    if (!confirm(`Apagar o utilizador "${u.nome_completo}"?`)) return;
-    this.userService.delete(u._id).subscribe(() => this.carregar());
+    this.modalConf.set({
+      msg: `Apagar o utilizador "${u.nome_completo}"? Esta ação não pode ser desfeita.`,
+      fn: () => this.userService.delete(u._id).subscribe(() => this.carregar())
+    });
+  }
+
+  aprovar(u: Utilizador) {
+    this.userService.aprovar(u._id).subscribe(() => this.carregar());
+  }
+
+  rejeitar(u: Utilizador) {
+    this.modalConf.set({
+      msg: `Rejeitar e eliminar a conta de "${u.nome_completo}"?`,
+      fn: () => this.userService.rejeitarPendente(u._id).subscribe(() => this.carregar())
+    });
   }
 
   fecharModal() { this.modal.set(null); this.erro.set(null); }
 
   roleLabel(tipo: string): string {
-    const map: Record<string, string> = { enfermeiro_gestor: 'Enfermeiro Gestor', auxiliar_limpeza: 'Auxiliar de Limpeza' };
+    const map: Record<string, string> = {
+      enfermeiro_gestor: 'Enfermeiro Gestor',
+      auxiliar_limpeza: 'Auxiliar de Limpeza',
+      admin: 'Administrador'
+    };
     return map[tipo] ?? tipo;
   }
 
   roleBadgeClass(tipo: string): string {
     if (tipo === 'enfermeiro_gestor') return 'role-enf';
+    if (tipo === 'admin')             return 'role-admin';
     return 'role-aux';
+  }
+
+  ehAdmin(u: Utilizador): boolean {
+    return u.tipo_utilizador === 'admin';
   }
 }

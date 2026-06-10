@@ -19,6 +19,7 @@ export class InfraestruturaComponent implements OnInit {
 
   modal = signal<Modal>(null);
   erro = signal<string | null>(null);
+  modalConf = signal<{ msg: string; fn: () => void } | null>(null);
 
   formAndar = { numero_piso: null as number | null, nome_ala: '' };
   formQuarto = { numero_quarto: '', capacidade_maxima: 1, tipo_quarto: '', andar_id: '' };
@@ -28,7 +29,7 @@ export class InfraestruturaComponent implements OnInit {
   editAndarForm = { numero_piso: null as number | null, nome_ala: '' };
 
   editQuartoId = signal('');
-  editQuartoForm = { numero_quarto: '', tipo_quarto: '' };
+  editQuartoForm = { numero_quarto: '', tipo_quarto: '', capacidade_maxima: 1 };
 
   gestEspAndarId = signal('');
   gestEspAndar = signal<AndarHospital | null>(null);
@@ -73,8 +74,7 @@ export class InfraestruturaComponent implements OnInit {
     const msg = n > 0
       ? `Apagar "Piso ${a.numero_piso} — ${a.nome_ala}"? Isto irá apagar também ${n} quarto(s) e todas as suas camas.`
       : `Apagar "Piso ${a.numero_piso} — ${a.nome_ala}"?`;
-    if (!confirm(msg)) return;
-    this.infra.deleteAndar(a._id).subscribe(() => this.carregar());
+    this.modalConf.set({ msg, fn: () => this.infra.deleteAndar(a._id).subscribe(() => this.carregar()) });
   }
 
   // --- QUARTOS ---
@@ -88,7 +88,7 @@ export class InfraestruturaComponent implements OnInit {
 
   abrirEditQuarto(q: QuartoHospital) {
     this.editQuartoId.set(q._id);
-    this.editQuartoForm = { numero_quarto: q.numero_quarto, tipo_quarto: q.tipo_quarto };
+    this.editQuartoForm = { numero_quarto: q.numero_quarto, tipo_quarto: q.tipo_quarto, capacidade_maxima: q.capacidade_maxima };
     this.erro.set(null);
     this.modal.set('editQuarto');
   }
@@ -102,8 +102,10 @@ export class InfraestruturaComponent implements OnInit {
   }
 
   apagarQuarto(q: QuartoHospital) {
-    if (!confirm(`Apagar quarto ${q.numero_quarto}? Todas as suas camas serão eliminadas.`)) return;
-    this.infra.deleteQuarto(q._id).subscribe(() => this.carregar());
+    this.modalConf.set({
+      msg: `Apagar o quarto ${q.numero_quarto}? Todas as suas camas serão eliminadas.`,
+      fn: () => this.infra.deleteQuarto(q._id).subscribe(() => this.carregar())
+    });
   }
 
   // --- ESPECIALIDADES ---
@@ -116,8 +118,10 @@ export class InfraestruturaComponent implements OnInit {
   }
 
   apagarEspecialidade(e: Especialidade) {
-    if (!confirm(`Apagar especialidade "${e.nome_especialidade}"? Será desassociada de todos os andares.`)) return;
-    this.infra.deleteEspecialidade(e._id).subscribe(() => this.carregar());
+    this.modalConf.set({
+      msg: `Apagar a especialidade "${e.nome_especialidade}"? Será desassociada de todos os andares.`,
+      fn: () => this.infra.deleteEspecialidade(e._id).subscribe(() => this.carregar())
+    });
   }
 
   abrirGestEsp(a: AndarHospital) {
@@ -131,11 +135,7 @@ export class InfraestruturaComponent implements OnInit {
   associar() {
     if (!this.assocEspId()) return;
     this.infra.associarEspecialidade(this.gestEspAndarId(), this.assocEspId()).subscribe({
-      next: (andarAtualizado) => {
-        this.gestEspAndar.set(andarAtualizado);
-        this.assocEspId.set('');
-        this.carregar();
-      },
+      next: (andarAtualizado) => { this.gestEspAndar.set(andarAtualizado); this.assocEspId.set(''); this.carregar(); },
       error: (e) => this.erro.set(e.error?.error ?? 'Erro.')
     });
   }
@@ -154,7 +154,6 @@ export class InfraestruturaComponent implements OnInit {
     return this.especialidades().filter(e => !ids.includes(e._id));
   }
 
-  // --- Helpers ---
   nomeAndar(quarto: QuartoHospital): string {
     return typeof quarto.andar === 'object'
       ? `Piso ${quarto.andar.numero_piso} — ${quarto.andar.nome_ala}`
@@ -168,8 +167,5 @@ export class InfraestruturaComponent implements OnInit {
     }).length;
   }
 
-  fecharModal() {
-    this.modal.set(null);
-    this.erro.set(null);
-  }
+  fecharModal() { this.modal.set(null); this.erro.set(null); }
 }
