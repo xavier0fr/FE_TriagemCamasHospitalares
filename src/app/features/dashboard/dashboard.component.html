@@ -69,23 +69,23 @@
             <circle cx="60" cy="60" r="48" fill="none" stroke="#f1f5f9" stroke-width="16"/>
             <!-- Livre e Limpa (verde) -->
             <circle cx="60" cy="60" r="48" fill="none" stroke="#4ade80" stroke-width="16"
-              stroke-dasharray="{{ donutLivre }}"
-              stroke-dashoffset="{{ -offsetLivre }}"
+              [attr.stroke-dasharray]="donutLivre"
+              [attr.stroke-dashoffset]="-offsetLivre"
               transform="rotate(-90 60 60)"/>
             <!-- Ocupada (vermelho) -->
             <circle cx="60" cy="60" r="48" fill="none" stroke="#f87171" stroke-width="16"
-              stroke-dasharray="{{ donutOcupada }}"
-              stroke-dashoffset="{{ -offsetOcupada }}"
+              [attr.stroke-dasharray]="donutOcupada"
+              [attr.stroke-dashoffset]="-offsetOcupada"
               transform="rotate(-90 60 60)"/>
             <!-- Para Limpar (laranja) -->
             <circle cx="60" cy="60" r="48" fill="none" stroke="#fb923c" stroke-width="16"
-              stroke-dasharray="{{ donutLimpar }}"
-              stroke-dashoffset="{{ -offsetLimpar }}"
+              [attr.stroke-dasharray]="donutLimpar"
+              [attr.stroke-dashoffset]="-offsetLimpar"
               transform="rotate(-90 60 60)"/>
             <!-- A Aguardar (amarelo) -->
             <circle cx="60" cy="60" r="48" fill="none" stroke="#fbbf24" stroke-width="16"
-              stroke-dasharray="{{ donutAaguardar }}"
-              stroke-dashoffset="{{ -offsetAaguardar }}"
+              [attr.stroke-dasharray]="donutAaguardar"
+              [attr.stroke-dashoffset]="-offsetAaguardar"
               transform="rotate(-90 60 60)"/>
             <!-- Texto central -->
             <text x="60" y="55" text-anchor="middle" font-size="18" font-weight="800" fill="#1e293b">{{ taxaOcupacao }}%</text>

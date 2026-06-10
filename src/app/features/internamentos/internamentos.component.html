@@ -20,7 +20,7 @@
             <label>Doente</label>
             <select [(ngModel)]="form.doente" name="doente" required>
               <option value="">Selecionar doente...</option>
-              @for (d of doentes(); track d._id) {
+              @for (d of doentesDisponiveis(); track d._id) {
                 <option [value]="d._id">{{ d.nome_completo }} — SNS: {{ d.numero_sns }}</option>
               }
             </select>
