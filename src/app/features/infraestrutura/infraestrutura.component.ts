@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InfraestruturaService } from '../../core/services/infraestrutura.service';
 import { AndarHospital, Especialidade, QuartoHospital } from '../../core/models/infraestrutura.model';
@@ -16,6 +16,20 @@ export class InfraestruturaComponent implements OnInit {
   andares = signal<AndarHospital[]>([]);
   quartos = signal<QuartoHospital[]>([]);
   especialidades = signal<Especialidade[]>([]);
+
+  // Filtros de quartos
+  filtroAndarId = signal<string>('');
+  filtroQuarto = signal<string>('');
+
+  quartosFiltrados = computed(() => {
+    return this.quartos().filter(q => {
+      const andarId = typeof q.andar === 'object' ? q.andar._id : q.andar;
+      const matchAndar = !this.filtroAndarId() || andarId === this.filtroAndarId();
+      const matchQuarto = !this.filtroQuarto() ||
+        q.numero_quarto.toLowerCase().includes(this.filtroQuarto().toLowerCase());
+      return matchAndar && matchQuarto;
+    });
+  });
 
   modal = signal<Modal>(null);
   erro = signal<string | null>(null);

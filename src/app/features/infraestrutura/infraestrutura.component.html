@@ -289,6 +289,32 @@
     </button>
   </div>
 
+  <!-- Filtros de quartos -->
+  <div class="filtros-row">
+    <div class="filtro-group">
+      <label class="filtro-label">Filtrar por Andar</label>
+      <select class="filtro-select" [ngModel]="filtroAndarId()" (ngModelChange)="filtroAndarId.set($event)">
+        <option value="">Todos os andares</option>
+        @for (a of andares(); track a._id) {
+          <option [value]="a._id">Piso {{ a.numero_piso }} — {{ a.nome_ala }}</option>
+        }
+      </select>
+    </div>
+    <div class="filtro-group">
+      <label class="filtro-label">Pesquisar Quarto</label>
+      <input class="filtro-input" type="text" placeholder="Nº do quarto..."
+        [ngModel]="filtroQuarto()" (ngModelChange)="filtroQuarto.set($event)"/>
+    </div>
+    @if (filtroAndarId() || filtroQuarto()) {
+      <button class="btn-limpar-filtros" (click)="filtroAndarId.set(''); filtroQuarto.set('')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Limpar filtros
+      </button>
+    }
+  </div>
+
   <div class="card">
     <table>
       <thead>
@@ -301,7 +327,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (q of quartos(); track q._id) {
+        @for (q of quartosFiltrados(); track q._id) {
           <tr>
             <td><strong>Quarto {{ q.numero_quarto }}</strong></td>
             <td>{{ nomeAndar(q) }}</td>
@@ -323,7 +349,12 @@
             </td>
           </tr>
         } @empty {
-          <tr><td colspan="5" class="empty">Sem quartos. Adicione um andar primeiro e depois crie quartos.</td></tr>
+          <tr>
+            <td colspan="5" class="empty">
+              @if (filtroAndarId() || filtroQuarto()) { Nenhum quarto encontrado com os filtros aplicados. }
+              @else { Sem quartos. Adicione um andar primeiro e depois crie quartos. }
+            </td>
+          </tr>
         }
       </tbody>
     </table>

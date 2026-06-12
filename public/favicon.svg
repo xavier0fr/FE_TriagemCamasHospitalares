@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Rounded square background -->
+  <rect x="2" y="2" width="60" height="60" rx="14" ry="14" fill="#ffffff" stroke="#2d4e8a" stroke-width="3"/>
+  <!-- Bed body -->
+  <rect x="8" y="36" width="40" height="8" rx="2" fill="#2d4e8a"/>
+  <!-- Bed legs -->
+  <rect x="11" y="44" width="5" height="9" rx="1.5" fill="#2d4e8a"/>
+  <rect x="43" y="44" width="5" height="9" rx="1.5" fill="#2d4e8a"/>
+  <!-- Pillow -->
+  <rect x="8" y="26" width="16" height="12" rx="3" fill="#2d4e8a"/>
+  <!-- Cross/plus top right -->
+  <rect x="40" y="8" width="16" height="5" rx="2.5" fill="#4a7bc4"/>
+  <rect x="45" y="3" width="5" height="16" rx="2.5" fill="#4a7bc4"/>
+  <!-- Wheels -->
+  <circle cx="14" cy="55" r="3" fill="none" stroke="#2d4e8a" stroke-width="2"/>
+  <circle cx="46" cy="55" r="3" fill="none" stroke="#2d4e8a" stroke-width="2"/>
+</svg>

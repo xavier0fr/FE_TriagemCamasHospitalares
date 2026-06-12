@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" width="220" height="220">
+  <!-- Rounded square background -->
+  <rect x="10" y="10" width="140" height="140" rx="28" ry="28" fill="#ffffff" stroke="#2d4e8a" stroke-width="6"/>
+
+  <!-- Hospital bed body -->
+  <rect x="28" y="90" width="104" height="18" rx="4" fill="#2d4e8a"/>
+  <!-- Bed legs -->
+  <rect x="34" y="108" width="10" height="22" rx="3" fill="#2d4e8a"/>
+  <rect x="116" y="108" width="10" height="22" rx="3" fill="#2d4e8a"/>
+  <!-- Pillow / head area -->
+  <rect x="28" y="70" width="38" height="22" rx="6" fill="#2d4e8a"/>
+  <!-- Person lying down (simplified oval) -->
+  <ellipse cx="96" cy="84" rx="32" ry="10" fill="#4a7bc4" opacity="0.5"/>
+  <!-- Wheels -->
+  <circle cx="39" cy="132" r="5" fill="none" stroke="#2d4e8a" stroke-width="3"/>
+  <circle cx="121" cy="132" r="5" fill="none" stroke="#2d4e8a" stroke-width="3"/>
+
+  <!-- Blue cross / plus top-right of box -->
+  <rect x="110" y="22" width="28" height="8" rx="4" fill="#4a7bc4"/>
+  <rect x="120" y="12" width="8" height="28" rx="4" fill="#4a7bc4"/>
+
+  <!-- Horizontal lines (document/list style) on the right outside box -->
+  <rect x="162" y="52" width="44" height="7" rx="3.5" fill="#4a7bc4"/>
+  <rect x="162" y="68" width="34" height="7" rx="3.5" fill="#4a7bc4" opacity="0.6"/>
+  <rect x="162" y="84" width="38" height="7" rx="3.5" fill="#4a7bc4" opacity="0.4"/>
+
+  <!-- MedTriage text -->
+  <text x="10" y="195" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="36" fill="#1e3a6e">Med</text>
+  <text x="84" y="195" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="36" fill="#4a7bc4">Triage</text>
+</svg>

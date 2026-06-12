@@ -99,9 +99,8 @@
             <th>Andar</th>
             @if (auth.role() !== 'auxiliar_limpeza') {
               <th>Última Limpeza Por</th>
-              <th>Ações</th>
             }
-            @if (auth.role() === 'auxiliar_limpeza') {
+            @if (auth.role() === 'enfermeiro_gestor' || auth.role() === 'auxiliar_limpeza') {
               <th>Ações</th>
             }
           </tr>
@@ -120,9 +119,13 @@
               <td>{{ nomeQuarto(cama) }}</td>
               <td class="text-muted">{{ nomeAndar(cama) }}</td>
 
-              <!-- Coluna para enfermeiro/admin -->
+              <!-- Coluna última limpeza para enfermeiro/admin -->
               @if (auth.role() !== 'auxiliar_limpeza') {
                 <td class="text-muted">{{ ultimoLimpador(cama) }}</td>
+              }
+
+              <!-- Coluna Ações apenas para enfermeiro -->
+              @if (auth.role() === 'enfermeiro_gestor') {
                 <td class="actions-cell">
                   @if (cama.estado_limpeza === 'Suja') {
                     @if (!temPrioridade(cama._id)) {
