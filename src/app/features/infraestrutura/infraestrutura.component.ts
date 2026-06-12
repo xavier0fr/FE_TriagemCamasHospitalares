@@ -25,6 +25,13 @@ export class InfraestruturaComponent implements OnInit {
   formQuarto = { numero_quarto: '', capacidade_maxima: 1, tipo_quarto: '', andar_id: '' };
   formEspecialidade = { nome_especialidade: '' };
 
+  // Número do piso do andar selecionado no form de criar quarto (para hint)
+  get pisoCriacao(): string {
+    if (!this.formQuarto.andar_id) return '';
+    const a = this.andares().find(x => x._id === this.formQuarto.andar_id);
+    return a ? String(a.numero_piso) : '';
+  }
+
   editAndarId = signal('');
   editAndarForm = { numero_piso: null as number | null, nome_ala: '' };
 

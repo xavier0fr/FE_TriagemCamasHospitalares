@@ -19,7 +19,7 @@
         <p class="stat-label">Livres e Limpas</p>
       </div>
     </div>
-    @if (auth.role() !== 'enfermeiro_gestor') {
+    @if (auth.role() !== 'auxiliar_limpeza') {
       <div class="stat-card">
         <div class="stat-icon stat-red">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -32,17 +32,19 @@
         </div>
       </div>
     }
-    <div class="stat-card">
-      <div class="stat-icon stat-yellow">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-        </svg>
+    @if (auth.role() !== 'enfermeiro_gestor') {
+      <div class="stat-card">
+        <div class="stat-icon stat-yellow">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="stat-value">{{ camasParaLimpar }}</p>
+          <p class="stat-label">Para Limpar</p>
+        </div>
       </div>
-      <div>
-        <p class="stat-value">{{ camasParaLimpar }}</p>
-        <p class="stat-label">Para Limpar</p>
-      </div>
-    </div>
+    }
     @if (auth.role() !== 'auxiliar_limpeza') {
       <div class="stat-card">
         <div class="stat-icon stat-blue">

@@ -115,15 +115,18 @@ export class CamasComponent implements OnInit {
     });
   }
 
-  // Cama livre mas suja → linha amarela
+  // Cores das linhas: verde=Livre+Limpa, amarelo=Ocupada+Limpa, vermelho=Livre+Suja
   rowClass(cama: Cama): string {
-    if (cama.estado_ocupacao === 'Livre' && cama.estado_limpeza === 'Suja') return 'row-suja-livre';
-    if (cama.estado_limpeza === 'Suja' && this.temPrioridade(cama._id)) return 'row-prioridade';
+    if (cama.estado_ocupacao === 'Livre' && cama.estado_limpeza === 'Limpa') return 'row-livre-limpa';
+    if (cama.estado_ocupacao === 'Livre' && (cama.estado_limpeza === 'Suja' || cama.estado_limpeza === 'A Aguardar')) return 'row-livre-suja';
+    if (cama.estado_ocupacao === 'Ocupada' && cama.estado_limpeza === 'Limpa') return 'row-ocupada-limpa';
     return '';
   }
 
-  badgeOcupacao(estado: string) {
-    return estado === 'Livre' ? 'badge-livre' : 'badge-ocupada';
+  // Badge "Livre" amarelo quando cama está suja (para diferenciar de livre+limpa)
+  badgeOcupacao(cama: Cama): string {
+    if (cama.estado_ocupacao === 'Livre' && (cama.estado_limpeza === 'Suja' || cama.estado_limpeza === 'A Aguardar')) return 'badge-livre-suja';
+    return cama.estado_ocupacao === 'Livre' ? 'badge-livre' : 'badge-ocupada';
   }
 
   badgeLimpeza(estado: string) {

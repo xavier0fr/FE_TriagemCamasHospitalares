@@ -7,11 +7,12 @@
   font-weight: 600;
   white-space: nowrap;
 }
-.badge-livre    { background: #dcfce7; color: #166534; }
-.badge-ocupada  { background: #fee2e2; color: #991b1b; }
-.badge-limpa    { background: #dcfce7; color: #166534; }
-.badge-suja     { background: #fee2e2; color: #991b1b; }
-.badge-aguardar { background: #fef9c3; color: #854d0e; }
+.badge-livre      { background: #dcfce7; color: #166534; }
+.badge-livre-suja { background: #fef9c3; color: #854d0e; } /* Livre mas suja → amarelo */
+.badge-ocupada    { background: #fee2e2; color: #991b1b; }
+.badge-limpa      { background: #dcfce7; color: #166534; }
+.badge-suja       { background: #fee2e2; color: #991b1b; }
+.badge-aguardar   { background: #fef9c3; color: #854d0e; }
 
 .btn-refresh {
   display: flex; align-items: center; gap: 0.4rem;
@@ -81,16 +82,19 @@
   padding: 3rem; text-align: center; color: #94a3b8;
 }
 
-// Linha de cama livre mas suja → amarelo suave
-.row-suja-livre {
-  background: #fefce8 !important;
-  td { color: #713f12; }
+// Verde — Livre + Limpa (disponível)
+.row-livre-limpa {
+  background: #f0fdf4 !important;
 }
 
-// Linha de cama suja com prioridade → laranja suave
-.row-prioridade {
-  background: #fff7ed !important;
-  td { color: #7c2d12; }
+// Amarelo — Ocupada + Limpa
+.row-ocupada-limpa {
+  background: #fefce8 !important;
+}
+
+// Vermelho — Livre + Suja (precisa limpeza antes de poder ser usada)
+.row-livre-suja {
+  background: #fff1f2 !important;
 }
 
 // Tag de prioridade inline
