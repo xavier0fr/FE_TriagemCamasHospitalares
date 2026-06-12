@@ -114,7 +114,20 @@
     <div class="loading-state">A carregar internamentos...</div>
   } @else {
     <div class="card">
-      @if (internamentos().length > 0) {
+      <!-- Barra de pesquisa por nome de doente -->
+      <div class="search-bar">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+        </svg>
+        <input type="text" placeholder="Pesquisar por nome de doente..."
+          [value]="filtroNome()"
+          (input)="filtroNome.set($any($event.target).value)"/>
+        @if (filtroNome()) {
+          <button class="btn-clear-search" (click)="filtroNome.set('')">✕</button>
+        }
+      </div>
+
+      @if (internamentosFiltrados().length > 0 && !filtroNome()) {
         <div class="table-info">{{ internamentos().length }} internamento(s) ativo(s)</div>
       }
       <table>
@@ -132,7 +145,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (i of internamentos(); track i._id) {
+          @for (i of internamentosFiltrados(); track i._id) {
             <tr>
               <td><strong>{{ nomeDoente(i) }}</strong></td>
               <td class="text-muted">{{ snsDoente(i) }}</td>
@@ -152,7 +165,12 @@
               }
             </tr>
           } @empty {
-            <tr><td [attr.colspan]="auth.role() === 'admin' ? 6 : 7" class="empty">Sem internamentos ativos.</td></tr>
+            <tr>
+              <td [attr.colspan]="auth.role() === 'admin' ? 6 : 7" class="empty">
+                @if (filtroNome()) { Nenhum internamento encontrado para "{{ filtroNome() }}". }
+                @else { Sem internamentos ativos. }
+              </td>
+            </tr>
           }
         </tbody>
       </table>

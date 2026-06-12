@@ -30,6 +30,19 @@ export class InternamentosComponent implements OnInit {
   sugestaoLoading = signal(false);
   sugestaoEspecialidade = signal('');
   erroForm = signal<string | null>(null);
+  filtroNome = signal('');
+
+  // Internamentos filtrados por nome de doente
+  internamentosFiltrados = computed(() => {
+    const f = this.filtroNome().toLowerCase().trim();
+    if (!f) return this.internamentos();
+    return this.internamentos().filter(i => {
+      const nome = typeof i.doente === 'object'
+        ? (i.doente as Doente).nome_completo.toLowerCase()
+        : '';
+      return nome.includes(f);
+    });
+  });
 
   // Doentes sem internamento ativo
   doentesDisponiveis = computed(() => {

@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { DoenteService } from '../../core/services/doente.service';
+import { RelatorioService } from '../../core/services/relatorio.service';
 import { Doente } from '../../core/models/doente.model';
 
 @Component({
@@ -19,15 +20,27 @@ export class DoenteComponent implements OnInit {
   erro = signal<string | null>(null);
   modalConf = signal<{ msg: string; fn: () => void } | null>(null);
 
+  // XML import state
+  importResult = signal<{ valido: boolean; importado?: any; erros?: string[] } | null>(null);
+  importLoading = signal(false);
+
+  // Filtro de pesquisa por nome
+  filtroNome = signal('');
+
   form: Partial<Doente> = {
     numero_sns: '', nome_completo: '', data_nascimento: '', contacto_emergencia: ''
   };
 
-  // Campo separado para os 9 dígitos do telemóvel (sem o +351)
   telefoneSufixo = '';
 
   readonly hoje = new Date().toISOString().substring(0, 10);
   readonly dataMin = new Date(new Date().getFullYear() - 120, 0, 1).toISOString().substring(0, 10);
+
+  get doentesVisiveis(): Doente[] {
+    const f = this.filtroNome().toLowerCase().trim();
+    if (!f) return this.doentes();
+    return this.doentes().filter(d => d.nome_completo.toLowerCase().includes(f));
+  }
 
   get nomeValido(): boolean {
     return /^[^\d]+$/.test((this.form.nome_completo ?? '').trim()) && (this.form.nome_completo ?? '').trim().length >= 3;
@@ -50,7 +63,11 @@ export class DoenteComponent implements OnInit {
     return this.nomeValido && this.snsValido && this.dataValida && this.contactoValido;
   }
 
-  constructor(public auth: AuthService, private doenteService: DoenteService) {}
+  constructor(
+    public auth: AuthService,
+    private doenteService: DoenteService,
+    public relatorioService: RelatorioService
+  ) {}
 
   ngOnInit() { this.carregar(); }
 
@@ -77,7 +94,6 @@ export class DoenteComponent implements OnInit {
       data_nascimento: d.data_nascimento?.substring(0, 10),
       contacto_emergencia: d.contacto_emergencia
     };
-    // Extrair os 9 dígitos do número guardado
     const tel = d.contacto_emergencia ?? '';
     const digits = tel.replace(/\D/g, '');
     this.telefoneSufixo = digits.length >= 9 ? digits.slice(-9) : digits;
@@ -113,6 +129,37 @@ export class DoenteComponent implements OnInit {
   }
 
   fecharModal() { this.modal.set(null); this.erro.set(null); }
+
+  // ── XML Import ────────────────────────────────────────────────
+  abrirImportar(input: HTMLInputElement) {
+    input.value = '';
+    input.click();
+  }
+
+  onFicheiroImportar(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.importLoading.set(true);
+    this.importResult.set(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const xml = reader.result as string;
+      this.relatorioService.importarDoentes(xml).subscribe({
+        next: (r: any) => {
+          this.importResult.set(r);
+          this.importLoading.set(false);
+          if (r.valido) this.carregar();
+        },
+        error: (e: any) => {
+          this.importResult.set(e.error ?? { valido: false, erros: ['Erro desconhecido.'] });
+          this.importLoading.set(false);
+        }
+      });
+    };
+    reader.readAsText(file);
+  }
+
+  fecharImportResult() { this.importResult.set(null); }
 
   idade(dataNasc: string): number {
     const diff = Date.now() - new Date(dataNasc).getTime();

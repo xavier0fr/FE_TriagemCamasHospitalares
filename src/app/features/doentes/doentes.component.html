@@ -4,8 +4,56 @@
       <h1>Doentes</h1>
       <p>Registo e gestão de doentes hospitalizados</p>
     </div>
-    <button class="btn-primary" (click)="abrirCriar()">+ Novo Doente</button>
+    <div class="header-actions">
+      <!-- XML export/import (admin + enfermeiro) -->
+      <button class="btn-xml" (click)="relatorioService.exportarDoentes()" title="Exportar lista de doentes em XML (medicalExport)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+        </svg>
+        Exportar XML
+      </button>
+      <label class="btn-xml btn-import" title="Importar doentes de ficheiro XML" [class.loading]="importLoading()">
+        <input type="file" accept=".xml,application/xml,text/xml" #importInput (change)="onFicheiroImportar($event)" style="display:none"/>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" transform="scale(1,-1) translate(0,-24)"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 8L12 3.5m0 0L7.5 8M12 3.5V16"/>
+        </svg>
+        {{ importLoading() ? 'A importar...' : 'Importar XML' }}
+      </label>
+      <button class="btn-xsd" (click)="relatorioService.exportarXsdDoentes()" title="Descarregar schema XSD">
+        XSD
+      </button>
+      <button class="btn-primary" (click)="abrirCriar()">+ Novo Doente</button>
+    </div>
   </div>
+
+  <!-- Resultado da importação XML -->
+  @if (importResult()) {
+    <div class="import-result" [class.import-ok]="importResult()!.valido" [class.import-err]="!importResult()!.valido">
+      <div class="import-result-header">
+        @if (importResult()!.valido) {
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <strong>Importação concluída.</strong>
+          <span>Criados: {{ importResult()!.importado?.criados }} · Atualizados: {{ importResult()!.importado?.atualizados }} · Total: {{ importResult()!.importado?.total }}</span>
+        } @else {
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          </svg>
+          <strong>XML inválido</strong>
+        }
+        <button class="btn-close-result" (click)="fecharImportResult()">✕</button>
+      </div>
+      @if (!importResult()!.valido && importResult()!.erros) {
+        <ul class="import-erros">
+          @for (e of importResult()!.erros; track e) {
+            <li>{{ e }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
 
   <!-- Modal confirmação -->
   @if (modalConf()) {
@@ -87,6 +135,19 @@
     <div class="loading-state">A carregar doentes...</div>
   } @else {
     <div class="card">
+      <!-- Barra de pesquisa -->
+      <div class="search-bar">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+        </svg>
+        <input type="text" placeholder="Pesquisar por nome de doente..."
+          [value]="filtroNome()"
+          (input)="filtroNome.set($any($event.target).value)"/>
+        @if (filtroNome()) {
+          <button class="btn-clear-search" (click)="filtroNome.set('')">✕</button>
+        }
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -98,7 +159,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (d of doentes(); track d._id) {
+          @for (d of doentesVisiveis; track d._id) {
             <tr>
               <td><span class="sns-badge">{{ d.numero_sns }}</span></td>
               <td><strong>{{ d.nome_completo }}</strong></td>
@@ -122,7 +183,12 @@
               </td>
             </tr>
           } @empty {
-            <tr><td colspan="5" class="empty">Sem doentes registados.</td></tr>
+            <tr>
+              <td colspan="5" class="empty">
+                @if (filtroNome()) { Nenhum doente encontrado para "{{ filtroNome() }}". }
+                @else { Sem doentes registados. }
+              </td>
+            </tr>
           }
         </tbody>
       </table>

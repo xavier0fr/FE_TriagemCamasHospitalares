@@ -10,12 +10,26 @@
   padding: 2.5rem;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
   @media (max-width: 768px) { display: none; }
+
+  // Decorative blurred circle
+  &::after {
+    content: '';
+    position: absolute;
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    background: rgba(96,165,250,0.08);
+    bottom: -80px; right: -80px;
+    pointer-events: none;
+  }
 }
 
 .login-brand {
   display: flex; align-items: center; gap: 0.75rem;
   color: white; font-weight: 700; font-size: 1.1rem;
+  position: relative; z-index: 1;
 }
 
 .brand-logo {
@@ -26,15 +40,26 @@
 }
 
 .login-hero {
-  flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 2rem;
-  h1 { font-size: 2.4rem; font-weight: 800; color: white; line-height: 1.2; margin: 0 0 1rem; }
-  p { font-size: 1rem; color: #94a3b8; line-height: 1.7; max-width: 380px; margin: 0 0 2.5rem; }
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding-bottom: 2rem; position: relative; z-index: 1;
+  h1 { font-size: 2.2rem; font-weight: 800; color: white; line-height: 1.25; margin: 0 0 1rem; }
+  p { font-size: 0.95rem; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 360px; margin: 0 0 2.5rem; }
 }
 
-.login-stats { display: flex; gap: 2rem; }
-.login-stat { display: flex; flex-direction: column; gap: 0.2rem; }
+.login-stats {
+  display: flex; gap: 0;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.login-stat {
+  flex: 1; display: flex; flex-direction: column; gap: 0.2rem;
+  padding: 1rem 1.25rem;
+  &:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.1); }
+}
 .stat-num { font-size: 1.5rem; font-weight: 800; color: #60a5fa; }
-.stat-lbl { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-lbl { font-size: 0.7rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.07em; }
 
 // Right panel
 .login-right {
