@@ -52,6 +52,11 @@ export class LoginComponent {
     return /^[^\d]+$/.test(this.registo.nome_completo.trim()) && this.registo.nome_completo.trim().length >= 3;
   }
 
+  // Formato de email válido
+  get emailValido(): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.registo.email.trim());
+  }
+
   // Password match
   get passwordsIguais(): boolean {
     return this.registo.password_hash === this.registo.confirmar_password;
@@ -100,6 +105,10 @@ export class LoginComponent {
 
     if (!this.nomeValido) {
       this.erroRegisto.set('O nome não pode conter números.');
+      return;
+    }
+    if (!this.emailValido) {
+      this.erroRegisto.set('Introduz um email com formato válido (ex: nome@hospital.pt).');
       return;
     }
     if (!this.passwordsIguais) {

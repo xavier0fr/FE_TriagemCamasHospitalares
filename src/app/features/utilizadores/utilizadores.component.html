@@ -45,7 +45,12 @@
 
           <div class="form-group">
             <label>Email</label>
-            <input type="email" [(ngModel)]="form.email" name="email" required placeholder="email@hospital.pt"/>
+            <input type="email" [(ngModel)]="form.email" name="email" required
+              placeholder="email@hospital.pt"
+              [class.input-error]="form.email && !emailValido"/>
+            @if (form.email && !emailValido) {
+              <span class="field-error">Formato de email inválido.</span>
+            }
           </div>
 
           @if (modal() === 'criar') {

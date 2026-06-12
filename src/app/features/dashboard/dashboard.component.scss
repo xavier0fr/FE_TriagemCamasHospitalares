@@ -32,6 +32,7 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   @media (max-width: 860px) { grid-template-columns: 1fr; }
+  &--single { grid-template-columns: 1fr; }
 }
 
 .chart-card {
@@ -106,14 +107,8 @@
   &.fill-crit { background: linear-gradient(90deg, #f87171, #ef4444); }
 }
 
-// Bottom row
-.bottom-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
-  align-items: start;
-  @media (max-width: 860px) { grid-template-columns: 1fr; }
-}
+// Recentes card (full width)
+.recentes-card { margin-bottom: 1rem; }
 
 .recentes-card {
   background: white; border-radius: 12px;

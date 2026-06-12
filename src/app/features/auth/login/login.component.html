@@ -38,7 +38,12 @@
 
           <div class="rform-group">
             <label>Email Institucional</label>
-            <input type="email" [(ngModel)]="registo.email" name="email" required placeholder="utilizador@hospital.pt"/>
+            <input type="email" [(ngModel)]="registo.email" name="email" required
+              placeholder="utilizador@hospital.pt"
+              [class.input-error]="registo.email && !emailValido"/>
+            @if (registo.email && !emailValido) {
+              <span class="field-error">Formato de email inválido.</span>
+            }
           </div>
 
           <div class="rform-row">
@@ -94,7 +99,7 @@
           <div class="rform-actions">
             <button type="button" class="btn-secondary-sm" (click)="mostrarRegisto.set(false)">Cancelar</button>
             <button type="submit" class="btn-submit-sm"
-              [disabled]="!rf.valid || !nomeValido || !passwordsIguais || loadingRegisto()">
+              [disabled]="!rf.valid || !nomeValido || !emailValido || !passwordsIguais || loadingRegisto()">
               {{ loadingRegisto() ? 'A criar conta...' : 'Criar Conta' }}
             </button>
           </div>

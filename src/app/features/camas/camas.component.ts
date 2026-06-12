@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CamaService } from '../../core/services/cama.service';
 import { PrioridadeService, Prioridade } from '../../core/services/prioridade.service';
+import { RelatorioService } from '../../core/services/relatorio.service';
 import { Cama, Quarto } from '../../core/models/cama.model';
 
 @Component({
@@ -36,7 +37,8 @@ export class CamasComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private camaService: CamaService,
-    private prioridadeService: PrioridadeService
+    private prioridadeService: PrioridadeService,
+    public relatorioService: RelatorioService
   ) {}
 
   ngOnInit() {

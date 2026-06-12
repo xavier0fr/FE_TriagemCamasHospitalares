@@ -49,6 +49,10 @@ export class UtilizadoresComponent implements OnInit {
     return /^[^\d]+$/.test(this.form.nome_completo.trim()) && this.form.nome_completo.trim().length >= 3;
   }
 
+  get emailValido(): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email.trim());
+  }
+
   get cedulaValida(): boolean {
     if (!this.mostrarCedula) return true;
     return this.form.cedula_profissional.trim().length >= 3;
@@ -60,7 +64,7 @@ export class UtilizadoresComponent implements OnInit {
   }
 
   get formValido(): boolean {
-    return this.nomeValido && this.cedulaValida && this.turnoValido;
+    return this.nomeValido && this.emailValido && this.cedulaValida && this.turnoValido;
   }
 
   constructor(private userService: UserService) {}
@@ -102,6 +106,7 @@ export class UtilizadoresComponent implements OnInit {
   submeter() {
     this.erro.set(null);
     if (!this.nomeValido) { this.erro.set('O nome não pode conter números (mín. 3 caracteres).'); return; }
+    if (!this.emailValido) { this.erro.set('Introduz um email com formato válido (ex: nome@hospital.pt).'); return; }
     if (!this.cedulaValida) { this.erro.set('A cédula profissional é obrigatória para enfermeiros.'); return; }
     if (!this.turnoValido) { this.erro.set('O turno de trabalho é obrigatório para auxiliares.'); return; }
 
@@ -123,6 +128,7 @@ export class UtilizadoresComponent implements OnInit {
   submeterEditar() {
     this.erro.set(null);
     if (!this.nomeValido) { this.erro.set('O nome não pode conter números (mín. 3 caracteres).'); return; }
+    if (!this.emailValido) { this.erro.set('Introduz um email com formato válido (ex: nome@hospital.pt).'); return; }
     if (!this.cedulaValida) { this.erro.set('A cédula profissional é obrigatória para enfermeiros.'); return; }
     if (!this.turnoValido) { this.erro.set('O turno de trabalho é obrigatório para auxiliares.'); return; }
 
