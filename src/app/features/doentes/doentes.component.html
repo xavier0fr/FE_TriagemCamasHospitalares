@@ -5,24 +5,26 @@
       <p>Registo e gestão de doentes hospitalizados</p>
     </div>
     <div class="header-actions">
-      <!-- XML export/import (admin + enfermeiro) -->
-      <button class="btn-xml" (click)="relatorioService.exportarDoentes()" title="Exportar lista de doentes em XML (medicalExport)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-        </svg>
-        Exportar XML
-      </button>
-      <label class="btn-xml btn-import" title="Importar doentes de ficheiro XML" [class.loading]="importLoading()">
-        <input type="file" accept=".xml,application/xml,text/xml" #importInput (change)="onFicheiroImportar($event)" style="display:none"/>
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" transform="scale(1,-1) translate(0,-24)"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 8L12 3.5m0 0L7.5 8M12 3.5V16"/>
-        </svg>
-        {{ importLoading() ? 'A importar...' : 'Importar XML' }}
-      </label>
-      <button class="btn-xsd" (click)="relatorioService.exportarXsdDoentes()" title="Descarregar schema XSD">
-        XSD
-      </button>
+      <!-- XML export/import e XSD — apenas admin -->
+      @if (auth.role() === 'admin') {
+        <button class="btn-xml" (click)="relatorioService.exportarDoentes()" title="Exportar lista de doentes em XML (medicalExport)">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+          </svg>
+          Exportar XML
+        </button>
+        <label class="btn-xml btn-import" title="Importar doentes de ficheiro XML" [class.loading]="importLoading()">
+          <input type="file" accept=".xml,application/xml,text/xml" #importInput (change)="onFicheiroImportar($event)" style="display:none"/>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" transform="scale(1,-1) translate(0,-24)"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 8L12 3.5m0 0L7.5 8M12 3.5V16"/>
+          </svg>
+          {{ importLoading() ? 'A importar...' : 'Importar XML' }}
+        </label>
+        <button class="btn-xsd" (click)="relatorioService.exportarXsdDoentes()" title="Descarregar schema XSD dos doentes">
+          XSD
+        </button>
+      }
       <button class="btn-primary" (click)="abrirCriar()">+ Novo Doente</button>
     </div>
   </div>

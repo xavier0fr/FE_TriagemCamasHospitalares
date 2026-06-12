@@ -4,9 +4,22 @@
       <h1>Internamentos Ativos</h1>
       <p>Gestão de internamentos e altas hospitalares</p>
     </div>
-    @if (auth.role() !== 'admin') {
-      <button class="btn-primary" (click)="abrirFormulario()">+ Novo Internamento</button>
-    }
+    <div class="header-actions">
+      @if (auth.role() === 'admin') {
+        <button class="btn-xml" (click)="relatorioService.exportarInternamentos()" title="Exportar internamentos em XML">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+          </svg>
+          Exportar XML
+        </button>
+        <button class="btn-xsd" (click)="relatorioService.exportarXsdInternamentos()" title="Descarregar schema XSD dos internamentos">
+          XSD
+        </button>
+      }
+      @if (auth.role() !== 'admin') {
+        <button class="btn-primary" (click)="abrirFormulario()">+ Novo Internamento</button>
+      }
+    </div>
   </div>
 
   <!-- Modal confirmação alta -->

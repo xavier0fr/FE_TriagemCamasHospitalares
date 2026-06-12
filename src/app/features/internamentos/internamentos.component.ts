@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { RelatorioService } from '../../core/services/relatorio.service';
 import { InternamentoService } from '../../core/services/internamento.service';
 import { CamaService } from '../../core/services/cama.service';
 import { DoenteService } from '../../core/services/doente.service';
@@ -57,6 +58,7 @@ export class InternamentosComponent implements OnInit {
 
   constructor(
     public auth: AuthService,
+    public relatorioService: RelatorioService,
     private internamentoService: InternamentoService,
     private camaService: CamaService,
     private doenteService: DoenteService,

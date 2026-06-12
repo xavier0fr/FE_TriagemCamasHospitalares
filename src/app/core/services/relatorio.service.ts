@@ -42,6 +42,21 @@ export class RelatorioService {
     });
   }
 
+  // ── Exportação de internamentos ─────────────────────────────
+  exportarInternamentos(): void {
+    this.http.get('/api/internamentos/export.xml', { responseType: 'blob' }).subscribe({
+      next: (blob) => this._download(blob, `internamentos_${this._hoje()}.xml`),
+      error: () => alert('Erro ao exportar internamentos em XML.')
+    });
+  }
+
+  exportarXsdInternamentos(): void {
+    this.http.get('/api/internamentos/export.xsd', { responseType: 'blob' }).subscribe({
+      next: (blob) => this._download(blob, 'internamentos.xsd'),
+      error: () => alert('Erro ao descarregar XSD dos internamentos.')
+    });
+  }
+
   // ── Helpers ─────────────────────────────────────────────────
   private _download(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
