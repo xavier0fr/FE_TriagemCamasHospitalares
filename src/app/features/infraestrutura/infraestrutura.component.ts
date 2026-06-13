@@ -99,6 +99,14 @@ export class InfraestruturaComponent implements OnInit {
   }
 
   // --- QUARTOS ---
+  // Quartos do tipo "Individual" só podem ter 1 cama
+  onTipoCriarChange() {
+    if (this.formQuarto.tipo_quarto === 'Individual') this.formQuarto.capacidade_maxima = 1;
+  }
+  onTipoEditarChange() {
+    if (this.editQuartoForm.tipo_quarto === 'Individual') this.editQuartoForm.capacidade_maxima = 1;
+  }
+
   submeterQuarto() {
     this.erro.set(null);
     this.infra.criarQuarto(this.formQuarto).subscribe({

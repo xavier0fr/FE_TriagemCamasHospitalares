@@ -58,7 +58,32 @@
         </div>
       </div>
     }
+    <!-- Auxiliar: camas com limpeza prioritária -->
+    @if (auth.role() === 'auxiliar_limpeza') {
+      <a routerLink="/camas" class="stat-card stat-card--link" [class.stat-card--alert]="countPrioridades > 0">
+        <div class="stat-icon stat-orange">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="stat-value">{{ countPrioridades }}</p>
+          <p class="stat-label">Limpezas Prioritárias</p>
+        </div>
+      </a>
+    }
   </div>
+
+  <!-- Auxiliar: aviso de camas prioritárias -->
+  @if (auth.role() === 'auxiliar_limpeza' && countPrioridades > 0) {
+    <div class="prioridade-alert">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      </svg>
+      <span><strong>{{ countPrioridades }} cama(s)</strong> com limpeza prioritária a aguardar. </span>
+      <a routerLink="/camas" class="prioridade-alert-link">Ver camas →</a>
+    </div>
+  }
 
   <!-- Gráficos -->
   <div class="charts-row" [class.charts-row--single]="auth.role() === 'enfermeiro_gestor'">

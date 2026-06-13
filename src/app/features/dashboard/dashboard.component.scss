@@ -11,6 +11,13 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;
   transition: box-shadow 0.15s;
   &:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
+  // Card clicável (auxiliar → camas)
+  &--link { text-decoration: none; cursor: pointer; }
+  // Realce quando há limpezas prioritárias pendentes
+  &--alert {
+    border-color: #fdba74; background: #fff7ed;
+    .stat-value { color: #c2410c; }
+  }
 }
 
 .stat-icon {
@@ -20,6 +27,20 @@
   &.stat-red    { background: #fee2e2; color: #dc2626; }
   &.stat-yellow { background: #fef9c3; color: #ca8a04; }
   &.stat-blue   { background: #dbeafe; color: #2563eb; }
+  &.stat-orange { background: #ffedd5; color: #ea580c; }
+}
+
+// Aviso de camas prioritárias (auxiliar)
+.prioridade-alert {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: #fff7ed; border: 1px solid #fdba74; color: #9a3412;
+  border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  .prioridade-alert-link {
+    margin-left: auto; color: #c2410c; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    &:hover { text-decoration: underline; }
+  }
 }
 
 .stat-value { font-size: 2rem; font-weight: 800; color: #1e293b; margin: 0 0 0.1rem; line-height: 1; }

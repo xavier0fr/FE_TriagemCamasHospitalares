@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { CamaService } from '../../core/services/cama.service';
 import { InternamentoService } from '../../core/services/internamento.service';
+import { PrioridadeService, Prioridade } from '../../core/services/prioridade.service';
 import { Cama } from '../../core/models/cama.model';
 import { Internamento } from '../../core/models/internamento.model';
 import { Doente } from '../../core/models/doente.model';
@@ -18,6 +19,9 @@ import { Doente } from '../../core/models/doente.model';
 export class DashboardComponent implements OnInit {
   camas = signal<Cama[]>([]);
   internamentosAtivos = signal<Internamento[]>([]);
+  prioridades = signal<Prioridade[]>([]);
+
+  get countPrioridades() { return this.prioridades().length; }
 
   // Contadores
   get camasLivresLimpas()  { return this.camas().filter(c => c.estado_ocupacao === 'Livre' && c.estado_limpeza === 'Limpa').length; }
@@ -63,13 +67,17 @@ export class DashboardComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private camaService: CamaService,
-    private internamentoService: InternamentoService
+    private internamentoService: InternamentoService,
+    private prioridadeService: PrioridadeService
   ) {}
 
   ngOnInit() {
     this.camaService.getAll().subscribe(c => this.camas.set(c));
     if (this.auth.role() !== 'auxiliar_limpeza') {
       this.internamentoService.getAtivos().subscribe(i => this.internamentosAtivos.set(i));
+    } else {
+      // Auxiliar de limpeza: carregar camas com limpeza prioritária
+      this.prioridadeService.getAtivas().subscribe(p => this.prioridades.set(p));
     }
   }
 }

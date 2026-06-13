@@ -88,7 +88,7 @@
             </div>
             <div class="form-group">
               <label>Tipo de Quarto</label>
-              <select [(ngModel)]="formQuarto.tipo_quarto" name="tipo" required>
+              <select [(ngModel)]="formQuarto.tipo_quarto" name="tipo" required (ngModelChange)="onTipoCriarChange()">
                 <option value="">Selecionar tipo...</option>
                 <option value="Enfermaria">Enfermaria</option>
                 <option value="Individual">Individual</option>
@@ -99,7 +99,11 @@
             </div>
             <div class="form-group">
               <label>Capacidade Máxima (nº de camas)</label>
-              <input type="number" [(ngModel)]="formQuarto.capacidade_maxima" name="cap" required min="1" max="20"/>
+              <input type="number" [(ngModel)]="formQuarto.capacidade_maxima" name="cap" required min="1" max="20"
+                [disabled]="formQuarto.tipo_quarto === 'Individual'"/>
+              @if (formQuarto.tipo_quarto === 'Individual') {
+                <span class="form-hint">Quartos individuais têm sempre 1 cama.</span>
+              }
             </div>
             @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
             <div class="modal-actions">
@@ -119,7 +123,7 @@
             </div>
             <div class="form-group">
               <label>Tipo de Quarto</label>
-              <select [(ngModel)]="editQuartoForm.tipo_quarto" name="tipo" required>
+              <select [(ngModel)]="editQuartoForm.tipo_quarto" name="tipo" required (ngModelChange)="onTipoEditarChange()">
                 <option value="Enfermaria">Enfermaria</option>
                 <option value="Individual">Individual</option>
                 <option value="Suite">Suíte</option>
@@ -129,7 +133,11 @@
             </div>
             <div class="form-group">
               <label>Capacidade Máxima (nº de camas)</label>
-              <input type="number" [(ngModel)]="editQuartoForm.capacidade_maxima" name="cap" required min="1" max="20"/>
+              <input type="number" [(ngModel)]="editQuartoForm.capacidade_maxima" name="cap" required min="1" max="20"
+                [disabled]="editQuartoForm.tipo_quarto === 'Individual'"/>
+              @if (editQuartoForm.tipo_quarto === 'Individual') {
+                <span class="form-hint">Quartos individuais têm sempre 1 cama.</span>
+              }
             </div>
             @if (erro()) { <div class="form-error-msg">{{ erro() }}</div> }
             <div class="modal-actions">
