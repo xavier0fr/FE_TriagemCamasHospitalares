@@ -158,10 +158,11 @@
 }
 
 .motivo-cell {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 280px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 .text-muted { color: #94a3b8; font-size: 0.85rem; }
