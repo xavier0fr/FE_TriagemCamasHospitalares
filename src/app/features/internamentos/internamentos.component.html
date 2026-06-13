@@ -12,6 +12,13 @@
           </svg>
           Exportar XML
         </button>
+        <label class="btn-xml btn-import" title="Importar internamentos de ficheiro XML" [class.loading]="importLoading()">
+          <input type="file" accept=".xml,application/xml,text/xml" (change)="onFicheiroImportar($event)" style="display:none"/>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 8L12 3.5m0 0L7.5 8M12 3.5V16"/>
+          </svg>
+          {{ importLoading() ? 'A importar...' : 'Importar XML' }}
+        </label>
         <button class="btn-xsd" (click)="relatorioService.exportarXsdInternamentos()" title="Descarregar schema XSD dos internamentos">
           XSD
         </button>
@@ -21,6 +28,41 @@
       }
     </div>
   </div>
+
+  <!-- Resultado da importação XML -->
+  @if (importResult()) {
+    <div class="import-result" [class.import-ok]="importResult()!.valido" [class.import-err]="!importResult()!.valido">
+      <div class="import-result-header">
+        @if (importResult()!.valido) {
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <strong>Importação concluída.</strong>
+          <span>Criados: {{ importResult()!.importado?.criados }} · Atualizados: {{ importResult()!.importado?.atualizados }} · Ignorados: {{ importResult()!.importado?.ignorados }} · Total: {{ importResult()!.importado?.total }}</span>
+        } @else {
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          </svg>
+          <strong>XML inválido</strong>
+        }
+        <button class="btn-close-result" (click)="fecharImportResult()">✕</button>
+      </div>
+      @if (!importResult()!.valido && importResult()!.erros) {
+        <ul class="import-erros">
+          @for (e of importResult()!.erros; track e) {
+            <li>{{ e }}</li>
+          }
+        </ul>
+      }
+      @if (importResult()!.valido && importResult()!.avisos && importResult()!.avisos!.length) {
+        <ul class="import-erros">
+          @for (a of importResult()!.avisos; track a) {
+            <li>{{ a }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
 
   <!-- Modal confirmação alta -->
   @if (modalConf()) {

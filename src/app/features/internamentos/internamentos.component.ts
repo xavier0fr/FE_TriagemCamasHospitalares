@@ -56,6 +56,35 @@ export class InternamentosComponent implements OnInit {
 
   form: CriarInternamentoRequest = { motivo_internamento: '', doente: '', cama: '' };
 
+  // ── Importação XML (admin) ──────────────────────────────────
+  importResult = signal<{ valido: boolean; importado?: any; erros?: string[]; avisos?: string[] } | null>(null);
+  importLoading = signal(false);
+
+  onFicheiroImportar(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.importLoading.set(true);
+    this.importResult.set(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const xml = reader.result as string;
+      this.relatorioService.importarInternamentos(xml).subscribe({
+        next: (r: any) => {
+          this.importResult.set(r);
+          this.importLoading.set(false);
+          if (r.valido) this.carregar();
+        },
+        error: (e: any) => {
+          this.importResult.set(e.error ?? { valido: false, erros: ['Erro desconhecido.'] });
+          this.importLoading.set(false);
+        }
+      });
+    };
+    reader.readAsText(file);
+  }
+
+  fecharImportResult() { this.importResult.set(null); }
+
   constructor(
     public auth: AuthService,
     public relatorioService: RelatorioService,

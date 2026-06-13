@@ -10,6 +10,10 @@
   border-radius: 8px; font-size: 0.85rem; color: #065f46; cursor: pointer;
   transition: all 0.15s; font-family: inherit; font-weight: 600;
   &:hover { background: #d1fae5; border-color: #34d399; }
+  &.btn-import { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8;
+    &:hover { background: #dbeafe; border-color: #93c5fd; }
+    &.loading { opacity: 0.7; cursor: wait; }
+  }
 }
 
 .btn-xsd {
@@ -18,6 +22,25 @@
   border-radius: 8px; font-size: 0.78rem; color: #64748b; cursor: pointer;
   transition: all 0.15s; font-family: monospace; font-weight: 700;
   &:hover { background: #f8fafc; border-color: #cbd5e1; }
+}
+
+// ── Painel de resultado da importação XML ────────────────────
+.import-result {
+  border-radius: 10px; border: 1px solid; padding: 0.85rem 1rem; margin-bottom: 1rem;
+  &.import-ok  { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  &.import-err { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+}
+.import-result-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  span { font-size: 0.85rem; }
+  .btn-close-result { margin-left: auto; background: none; border: none; cursor: pointer;
+    font-size: 0.9rem; color: inherit; opacity: 0.6; padding: 0 0.25rem;
+    &:hover { opacity: 1; }
+  }
+}
+.import-erros {
+  margin: 0.5rem 0 0 1.25rem; padding: 0;
+  li { font-size: 0.82rem; margin-bottom: 0.2rem; }
 }
 
 .search-bar {

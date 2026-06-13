@@ -42,6 +42,31 @@ export class RelatorioService {
     });
   }
 
+  // ── Exportação de estado das camas ──────────────────────────
+  exportarCamas(andarId?: string, quartoId?: string): void {
+    const params: string[] = [];
+    if (andarId) params.push(`andar_id=${encodeURIComponent(andarId)}`);
+    if (quartoId) params.push(`quarto_id=${encodeURIComponent(quartoId)}`);
+    const qs = params.length ? `?${params.join('&')}` : '';
+    this.http.get(`/api/camas/export.xml${qs}`, { responseType: 'blob' }).subscribe({
+      next: (blob) => this._download(blob, `estado_camas_${this._hoje()}.xml`),
+      error: () => alert('Erro ao exportar estado das camas em XML.')
+    });
+  }
+
+  exportarXsdCamas(): void {
+    this.http.get('/api/camas/export.xsd', { responseType: 'blob' }).subscribe({
+      next: (blob) => this._download(blob, 'estado_camas.xsd'),
+      error: () => alert('Erro ao descarregar XSD das camas.')
+    });
+  }
+
+  importarCamas(xmlText: string): Observable<any> {
+    return this.http.post('/api/camas/import.xml', xmlText, {
+      headers: { 'Content-Type': 'application/xml' }
+    });
+  }
+
   // ── Exportação de internamentos ─────────────────────────────
   exportarInternamentos(): void {
     this.http.get('/api/internamentos/export.xml', { responseType: 'blob' }).subscribe({
@@ -54,6 +79,12 @@ export class RelatorioService {
     this.http.get('/api/internamentos/export.xsd', { responseType: 'blob' }).subscribe({
       next: (blob) => this._download(blob, 'internamentos.xsd'),
       error: () => alert('Erro ao descarregar XSD dos internamentos.')
+    });
+  }
+
+  importarInternamentos(xmlText: string): Observable<any> {
+    return this.http.post('/api/internamentos/import.xml', xmlText, {
+      headers: { 'Content-Type': 'application/xml' }
     });
   }
 
